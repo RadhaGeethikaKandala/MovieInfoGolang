@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/router"
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	fmt.Println("hello world")
+	engine := gin.Default()
+	router.Router(engine)
+
+	engine.Run(":8085")
 }
