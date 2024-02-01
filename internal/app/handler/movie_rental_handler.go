@@ -1,25 +1,54 @@
 package handler
 
 import (
-	"fmt"
+	"strings"
 
-	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/service"
 	"github.com/gin-gonic/gin"
 )
 
-func SayHello(ctx *gin.Context) {
+type MovieHandler interface {
+	SayHello(ctx *gin.Context)
+	GetMovieList(ctx *gin.Context)
+}
+
+type movieHandler struct {
+	service service.MovieService
+}
+
+func NewHandler(service service.MovieService) MovieHandler {
+	return &movieHandler{
+		service: service,
+	}
+}
+
+func (mh movieHandler) SayHello(ctx *gin.Context) {
 
 	ctx.String(200, "hello world!")
 }
 
-func GetMovieList(ctx *gin.Context) {
-	fmt.Println(ctx.Param("name"))
-	var movieList []dto.Movie
-	movieList = append(movieList, dto.Movie{
-		Title: ctx.Param("name"),
-	}, dto.Movie{
-		Title: ctx.Param("name") + " returns",
+func (mh movieHandler) GetMovieList(ctx *gin.Context) {
+
+	movieName := ctx.Param("name")
+
+	if strings.TrimSpace(movieName) == "" {
+		ctx.JSON(400, gin.H{
+			"movieList":    nil,
+			"errorMessage": "name cannot be empty",
+		})
+		return
+	}
+
+	movieList, err := mh.service.GetMovies(movieName)
+
+	var errorMessage string
+	if err != nil {
+		errorMessage = err.Error()
+	}
+
+	ctx.JSON(200, gin.H{
+		"movieList":    movieList,
+		"errorMessage": errorMessage,
 	})
-	ctx.JSON(200, movieList)
 
 }
