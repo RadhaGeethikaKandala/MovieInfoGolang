@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	config.LoadEnvVariables()
+	config.LoadEnvVariables(".env")
 }
 
 func main() {

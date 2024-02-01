@@ -12,7 +12,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	config.LoadEnvVariables()
+	config.LoadEnvVariables("../../../.env")
 
 	exitVal := m.Run()
 
