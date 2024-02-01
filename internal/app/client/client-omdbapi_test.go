@@ -45,7 +45,8 @@ func TestShouldErrorResponseWhenGivenNoNameIsGiven(t *testing.T) {
 }
 
 func GetOmdbResponse(name string) (bool, []dto.Movie, string) {
-	omdbResponse := GetMovieList(name)
+	client := NewOmdbClient()
+	omdbResponse := client.GetMovieList(name)
 	responseStatus, _ := strconv.ParseBool(omdbResponse.Response)
 	movieList := omdbResponse.Search
 	return responseStatus, movieList, omdbResponse.Error
