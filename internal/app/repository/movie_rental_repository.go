@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
@@ -51,10 +50,10 @@ func (r *repository) GetMovies() []dto.Movie {
 
 
 func (r *repository) GetRatingsFor(movieId int) []dto.Rating {
-	query := fmt.Sprintf("SELECT * FROM ratings WHERE id IN (SELECT rating_id FROM moviesratings WHERE movie_id=%d)", movieId )
-	rows, err := r.db.Query(query)
+	query := "SELECT * FROM ratings WHERE id IN (SELECT rating_id FROM moviesratings WHERE movie_id=$1)"
+	rows, err := r.db.Query(query, movieId)
 	if err != nil {
-		log.Fatalf("Error while querying data: %s", err.Error())
+		log.Fatalf("[GetRatingsFor] Error while querying data: %s", err.Error())
 	}
 	defer rows.Close()
 	ratings := make([]dto.Rating, 0)
@@ -64,7 +63,7 @@ func (r *repository) GetRatingsFor(movieId int) []dto.Rating {
 		err = rows.Scan(&rating.Id, &rating.Source, &rating.Value)
 
 		if err != nil {
-			log.Fatalf("Error while scaning data: %s", err.Error())
+			log.Fatalf("[GetRatingsFor] Error while scaning data: %s", err.Error())
 		}
 		ratings = append(ratings, rating)
 	}
