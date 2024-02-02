@@ -47,6 +47,7 @@ func TestGetMovies(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	service := mock_service.NewMockMovieService(ctrl)
 	handler := NewHandler(service)
+	engine.GET("/api/movies/", handler.GetMoviesFromDb)
 	engine.GET("/api/movies/:name", handler.GetMovieList)
 
 	t.Run("service should return movie lists when given name is spiderman", func(t *testing.T) {
@@ -116,6 +117,23 @@ func TestGetMovies(t *testing.T) {
 		assert.Equal(t, err.Error(), responseStruct.ErrorMessage)
 		assert.Equal(t, http.StatusBadRequest, code)
 
+	})
+
+	t.Run("service should return movie lists from db", func(t *testing.T) {
+		movieList := []dto.Movie{
+			{
+				Title: "spiderman1",
+			},
+			{
+				Title: "spiderman2",
+			},
+		}
+
+
+		service.EXPECT().GetMoviesFromDb().Times(1).Return(movieList)
+		responseStruct, code := MakeApiCall("", t, engine)
+		assertValidInput(t, responseStruct, "", "")
+		assert.Equal(t, http.StatusOK, code)
 	})
 }
 

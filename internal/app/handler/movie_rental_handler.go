@@ -10,6 +10,7 @@ import (
 type MovieHandler interface {
 	SayHello(ctx *gin.Context)
 	GetMovieList(ctx *gin.Context)
+	GetMoviesFromDb(ctx *gin.Context)
 }
 
 type movieHandler struct {
@@ -23,7 +24,6 @@ func NewHandler(service service.MovieService) MovieHandler {
 }
 
 func (mh movieHandler) SayHello(ctx *gin.Context) {
-
 	ctx.String(200, "hello world!")
 }
 
@@ -49,6 +49,16 @@ func (mh movieHandler) GetMovieList(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{
 		"movieList":    movieList,
 		"errorMessage": errorMessage,
+	})
+
+}
+
+
+func (mh movieHandler) GetMoviesFromDb(ctx *gin.Context) {
+
+	movies := mh.service.GetMoviesFromDb()
+	ctx.JSON(200, gin.H{
+		"movieList": movies,
 	})
 
 }

@@ -5,14 +5,17 @@ import (
 
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/client"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/repository"
 )
 
 type MovieService interface {
 	GetMovies(movieName string) ([]dto.Movie, error)
+	GetMoviesFromDb() []dto.Movie
 }
 
 type movieService struct {
 	omdbClient client.OmdbClient
+	repository repository.Repository
 }
 
 func (ms *movieService) GetMovies(movieName string) ([]dto.Movie, error) {
@@ -24,8 +27,14 @@ func (ms *movieService) GetMovies(movieName string) ([]dto.Movie, error) {
 	return movieList, nil
 }
 
-func NewMovieService(client client.OmdbClient) MovieService {
+func (ms *movieService) GetMoviesFromDb() []dto.Movie {
+	movies := ms.repository.GetMovies()
+	return movies
+}
+
+func NewMovieService(c client.OmdbClient, r repository.Repository) MovieService {
 	return &movieService{
-		omdbClient: client,
+		omdbClient: c,
+		repository: r,
 	}
 }

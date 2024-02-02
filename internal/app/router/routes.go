@@ -2,7 +2,9 @@ package router
 
 import (
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/client"
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/database"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/handler"
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/repository"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/service"
 	"github.com/gin-gonic/gin"
 )
@@ -10,12 +12,14 @@ import (
 func Router(engine *gin.Engine) {
 
 	client := client.NewOmdbClient()
-	service := service.NewMovieService(client)
+	repository := repository.NewRepository(database.CreateDatabaseConn())
+	service := service.NewMovieService(client, repository)
 	handler := handler.NewHandler(service)
 
 	engine.GET("/hello", handler.SayHello)
 	omdbMovieApiGroup := engine.Group("/api/movies/")
 	{
-		omdbMovieApiGroup.GET(":name", handler.GetMovieList)
+		omdbMovieApiGroup.GET("/:name", handler.GetMovieList)
+		omdbMovieApiGroup.GET("/", handler.GetMoviesFromDb)
 	}
 }

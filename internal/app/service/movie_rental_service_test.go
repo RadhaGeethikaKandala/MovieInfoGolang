@@ -5,6 +5,7 @@ import (
 
 	mock_client "github.com/RadhaGeethikaKandala/MovieRental/internal/app/client/mocks"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/repository/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -12,8 +13,9 @@ import (
 func TestMovieService(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
+	repository := mock_repository.NewMockRepository(ctrl)
 	client := mock_client.NewMockOmdbClient(ctrl)
-	service := NewMovieService(client)
+	service := NewMovieService(client, repository)
 
 	t.Run("service should return movie list", func(t *testing.T) {
 		movieName := "batman"
@@ -51,6 +53,20 @@ func TestMovieService(t *testing.T) {
 
 		assert.Equal(t, 0, len(movies))
 		assert.Equal(t, "Movie not found!", err.Error())
+	})
+
+	t.Run("service should return movie list from db", func(t *testing.T) {
+		testData := []dto.Movie {
+			{Id: 1, Title: "batman"},
+			{Id: 2, Title: "batman returns"},
+		}
+		repository.EXPECT().GetMovies().Times(1).Return(testData)
+
+		movies := service.GetMoviesFromDb()
+
+		assert.Equal(t, 2, len(movies))
+		assert.Equal(t, "batman", movies[0].Title)
+		assert.Equal(t, "batman returns", movies[1].Title)
 	})
 
 }
