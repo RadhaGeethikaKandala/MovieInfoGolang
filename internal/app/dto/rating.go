@@ -1,6 +1,6 @@
 package dto
 
 type Rating struct {
-	Score string
-	Value string
+	Source string `json:"source"`
+	Value string `json:"value"`
 }
