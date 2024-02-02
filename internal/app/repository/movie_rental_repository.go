@@ -18,7 +18,15 @@ type repository struct {
 }
 
 func (r *repository) GetMovies() []dto.Movie {
-	rows, err := r.db.Query("SELECT * FROM movies")
+
+	// query := `SELECT * FROM movies m
+	// 					 LEFT JOIN moviesratings mr
+	// 					 ON m.id = mr.movie_id
+	// 					 RIGHT JOIN ratings r
+	// 					 ON mr.rating_id = r.id`
+
+	query := "SELECT * FROM movies"
+	rows, err := r.db.Query(query)
 	if err != nil {
 		log.Fatalf("Error while querying data: %s", err.Error())
 	}
@@ -36,7 +44,6 @@ func (r *repository) GetMovies() []dto.Movie {
 		if err != nil {
 			log.Fatalf("Error while scaning data: %s", err.Error())
 		}
-		movie.Ratings = r.GetRatingsFor(movie.Id)
 		movies = append(movies, movie)
 	}
 	return movies
@@ -67,6 +74,7 @@ func (r *repository) GetRatingsFor(movieId int) []dto.Rating {
 
 
 func NewRepository(conn *sql.DB) Repository {
+
 	return &repository{
 		db: conn,
 	}

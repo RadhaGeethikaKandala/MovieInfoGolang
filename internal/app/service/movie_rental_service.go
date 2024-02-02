@@ -29,6 +29,9 @@ func (ms *movieService) GetMovies(movieName string) ([]dto.Movie, error) {
 
 func (ms *movieService) GetMoviesFromDb() []dto.Movie {
 	movies := ms.repository.GetMovies()
+	for idx, movie := range movies {
+		movies[idx].Ratings = ms.repository.GetRatingsFor(movie.Id)
+	}
 	return movies
 }
 
