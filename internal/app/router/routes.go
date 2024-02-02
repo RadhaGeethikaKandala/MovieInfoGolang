@@ -17,9 +17,8 @@ func Router(engine *gin.Engine) {
 	handler := handler.NewHandler(service)
 
 	engine.GET("/hello", handler.SayHello)
-	omdbMovieApiGroup := engine.Group("/api/movies/")
+	movieRentalApiGroup := engine.Group("/api/movies/")
 	{
-		omdbMovieApiGroup.GET("/:name", handler.GetMovieList)
-		omdbMovieApiGroup.GET("/", handler.GetMoviesFromDb)
+		movieRentalApiGroup.GET("/", handler.GetMoviesFromDb)
 	}
 }
