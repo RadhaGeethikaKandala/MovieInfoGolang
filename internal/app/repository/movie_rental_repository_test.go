@@ -20,7 +20,6 @@ func NewMock() (*sql.DB, sqlmock.Sqlmock) {
 	return db, mock
 }
 
-
 func TestGetMovies(t *testing.T) {
 
 	t.Run("get all movies", func(t *testing.T) {
@@ -32,9 +31,9 @@ func TestGetMovies(t *testing.T) {
 			"writer", "actors", "plot", "language", "country",
 			"awards", "poster", "metascore", "imdbrating", "imdbvotes", "imdbid",
 			"type", "dvd", "boxoffice", "production", "website", "response"}).
-			AddRow("1", "Batman Begins", "2005", "PG-13", "15 Jun 2005", "" , "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ,"", "", "", "").
-			AddRow("2", "Batman Rises", "2010", "PG-13", "16 Jun 2010", "" , "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ,"", "", "", "").
-			AddRow("3", "Batman Returns", "2015", "PG-13", "16 Jun 2015", "" , "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ,"", "", "", "")
+			AddRow("1", "Batman Begins", "2005", "PG-13", "15 Jun 2005", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "").
+			AddRow("2", "Batman Rises", "2010", "PG-13", "16 Jun 2010", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "").
+			AddRow("3", "Batman Returns", "2015", "PG-13", "16 Jun 2015", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
 
 		mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM movies`)).WillReturnRows(rows)
 
@@ -60,8 +59,8 @@ func TestGetMovies(t *testing.T) {
 			"writer", "actors", "plot", "language", "country",
 			"awards", "poster", "metascore", "imdbrating", "imdbvotes", "imdbid",
 			"type", "dvd", "boxoffice", "production", "website", "response"}).
-			AddRow("1", "Batman Begins", "2005", "PG-13", "15 Jun 2005", "" , "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ,"", "", "", "").
-			AddRow("2", "Batman Rises", "2010", "PG-13", "16 Jun 2010", "" , "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ,"", "", "", "")
+			AddRow("1", "Batman Begins", "2005", "PG-13", "15 Jun 2005", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "").
+			AddRow("2", "Batman Rises", "2010", "PG-13", "16 Jun 2010", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
 
 		queryString := "SELECT * FROM movies WHERE LOWER(genre) LIKE LOWER('%' || $1 || '%') AND LOWER(year)=$2"
 		mock.ExpectQuery(regexp.QuoteMeta(queryString)).WillReturnRows(rows)
@@ -78,7 +77,6 @@ func TestGetMovies(t *testing.T) {
 	})
 
 }
-
 
 func TestGetRatingsForMovies(t *testing.T) {
 	db, mock := NewMock()

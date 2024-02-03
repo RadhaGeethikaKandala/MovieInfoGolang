@@ -92,14 +92,13 @@ func TestMovieService(t *testing.T) {
 				Genre:  "Fantasy",
 				Actors: "Robert",
 			},
-
 		}
 
 		ratingsTestData1 := []dto.Rating{
 			{Id: 2, Source: "Rotten Tomatoes", Value: "85%"},
 		}
 
-		request := &request.MoviesRequest{ Genre: "Fantasy", Actors: "Robert"}
+		request := &request.MoviesRequest{Genre: "Fantasy", Actors: "Robert"}
 		repository.EXPECT().GetMovies(request).Times(1).Return(movieTestData)
 		repository.EXPECT().GetRatingsFor(gomock.Any()).Times(1).
 			Return(ratingsTestData1)

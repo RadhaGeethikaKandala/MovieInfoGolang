@@ -55,15 +55,14 @@ func (mh movieHandler) GetMovieList(ctx *gin.Context) {
 
 }
 
-
 func (mh movieHandler) GetMoviesFromDb(ctx *gin.Context) {
 
 	var moviesRequest request.MoviesRequest
 	if err := ctx.ShouldBindQuery(&moviesRequest); err != nil {
 		ctx.JSON(400, response.ErrorResponse{
-			Status: "error",
+			Status:  "error",
 			Message: err.Error(),
-			Code: "400",
+			Code:    "400",
 		})
 	}
 

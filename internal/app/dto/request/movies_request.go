@@ -1,7 +1,8 @@
 package request
 
 type MoviesRequest struct {
-	Genre string `json:"genre" form:"genre"`
+	ImdbId string `json:"imdbid" form:"imdbid"`
+	Genre  string `json:"genre" form:"genre"`
 	Actors string `json:"actors" form:"actors"`
-	Year string `json:"year" form:"year"`
+	Year   string `json:"year" form:"year"`
 }

@@ -130,7 +130,6 @@ func TestGetMovies(t *testing.T) {
 			},
 		}
 
-
 		service.EXPECT().GetMoviesFromDb(&request.MoviesRequest{}).Times(1).Return(movieList)
 		responseStruct, code := MakeApiCall("", t, engine, nil)
 		assertValidInput(t, responseStruct, "", "")
@@ -142,21 +141,20 @@ func TestGetMovies(t *testing.T) {
 			{
 				Title: "spiderman1",
 				Genre: "Action",
-
 			},
 			{
-				Title: "spiderman2",
-				Genre: "Fantasy",
+				Title:  "spiderman2",
+				Genre:  "Fantasy",
 				Actors: "Robert",
 			},
 			{
 				Title: "spiderman3",
 				Genre: "Fantasy",
-				Year: "2007",
+				Year:  "2007",
 			},
 		}
-		service.EXPECT().GetMoviesFromDb(&request.MoviesRequest{Genre:"Action", Actors: "Robert", Year: "2007"}).Times(1).Return(movieList)
-		responseStruct, code := MakeApiCall("", t, engine, map[string]string{"genre":"Action", "actors":"Robert", "year": "2007"})
+		service.EXPECT().GetMoviesFromDb(&request.MoviesRequest{Genre: "Action", Actors: "Robert", Year: "2007"}).Times(1).Return(movieList)
+		responseStruct, code := MakeApiCall("", t, engine, map[string]string{"genre": "Action", "actors": "Robert", "year": "2007"})
 		assertValidInput(t, responseStruct, "", "")
 		assert.Equal(t, http.StatusOK, code)
 
@@ -193,9 +191,8 @@ func MakeApiCall(name string, t *testing.T, engine *gin.Engine, queryParams map[
 	return responseStruct, responseRecoder.Result().StatusCode
 }
 
-
-func CreateUrl(name string, queryParams map[string]string) string{
-	url := "/api/movies/"+name
+func CreateUrl(name string, queryParams map[string]string) string {
+	url := "/api/movies/" + name
 	if queryParams != nil {
 		url += "?"
 		for key, value := range queryParams {
