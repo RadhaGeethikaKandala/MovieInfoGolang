@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	dto "github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
+	request "github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/request"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -50,15 +51,15 @@ func (mr *MockMovieServiceMockRecorder) GetMovies(movieName interface{}) *gomock
 }
 
 // GetMoviesFromDb mocks base method.
-func (m *MockMovieService) GetMoviesFromDb() []dto.Movie {
+func (m *MockMovieService) GetMoviesFromDb(arg0 *request.MoviesRequest) []dto.Movie {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMoviesFromDb")
+	ret := m.ctrl.Call(m, "GetMoviesFromDb", arg0)
 	ret0, _ := ret[0].([]dto.Movie)
 	return ret0
 }
 
 // GetMoviesFromDb indicates an expected call of GetMoviesFromDb.
-func (mr *MockMovieServiceMockRecorder) GetMoviesFromDb() *gomock.Call {
+func (mr *MockMovieServiceMockRecorder) GetMoviesFromDb(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMoviesFromDb", reflect.TypeOf((*MockMovieService)(nil).GetMoviesFromDb))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMoviesFromDb", reflect.TypeOf((*MockMovieService)(nil).GetMoviesFromDb), arg0)
 }

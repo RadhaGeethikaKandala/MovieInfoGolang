@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/request"
 	mock_service "github.com/RadhaGeethikaKandala/MovieRental/internal/app/service/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -64,7 +65,7 @@ func TestGetMovies(t *testing.T) {
 
 		service.EXPECT().GetMovies(name).Times(1).Return(movieList, nil)
 
-		responseStruct, code := MakeApiCall(name, t, engine)
+		responseStruct, code := MakeApiCall(name, t, engine, nil)
 
 		assertValidInput(t, responseStruct, name, "")
 		assert.Equal(t, http.StatusOK, code)
@@ -85,7 +86,7 @@ func TestGetMovies(t *testing.T) {
 
 		service.EXPECT().GetMovies(name).Times(1).Return(movieList, nil)
 
-		responseStruct, code := MakeApiCall(name, t, engine)
+		responseStruct, code := MakeApiCall(name, t, engine, nil)
 
 		assertValidInput(t, responseStruct, name, "")
 		assert.Equal(t, http.StatusOK, code)
@@ -99,7 +100,7 @@ func TestGetMovies(t *testing.T) {
 
 		service.EXPECT().GetMovies(name).Times(1).Return(nil, errFromService)
 
-		responseStruct, code := MakeApiCall(name, t, engine)
+		responseStruct, code := MakeApiCall(name, t, engine, nil)
 
 		assertValidInput(t, responseStruct, name, errFromService.Error())
 		assert.Equal(t, http.StatusOK, code)
@@ -112,7 +113,7 @@ func TestGetMovies(t *testing.T) {
 
 		service.EXPECT().GetMovies(name).Times(0)
 
-		responseStruct, code := MakeApiCall(name, t, engine)
+		responseStruct, code := MakeApiCall(name, t, engine, nil)
 
 		assert.Equal(t, err.Error(), responseStruct.ErrorMessage)
 		assert.Equal(t, http.StatusBadRequest, code)
@@ -130,16 +131,40 @@ func TestGetMovies(t *testing.T) {
 		}
 
 
-		service.EXPECT().GetMoviesFromDb().Times(1).Return(movieList)
-		responseStruct, code := MakeApiCall("", t, engine)
+		service.EXPECT().GetMoviesFromDb(&request.MoviesRequest{}).Times(1).Return(movieList)
+		responseStruct, code := MakeApiCall("", t, engine, nil)
 		assertValidInput(t, responseStruct, "", "")
 		assert.Equal(t, http.StatusOK, code)
+	})
+
+	t.Run("service should return matching movies with matching given genre, actor or year", func(t *testing.T) {
+		movieList := []dto.Movie{
+			{
+				Title: "spiderman1",
+				Genre: "Action",
+
+			},
+			{
+				Title: "spiderman2",
+				Genre: "Fantasy",
+				Actors: "Robert",
+			},
+			{
+				Title: "spiderman3",
+				Genre: "Fantasy",
+				Year: "2007",
+			},
+		}
+		service.EXPECT().GetMoviesFromDb(&request.MoviesRequest{}).Times(1).Return(movieList)
+		responseStruct, code := MakeApiCall("", t, engine, map[string]string{"genre":"Action", "actor":"Robert", "year": "2007"})
+		assertValidInput(t, responseStruct, "", "")
+		assert.Equal(t, http.StatusOK, code)
+
 	})
 }
 
 func assertValidInput(t *testing.T, responseStruct dto.MovieRentalResponse, name string, errMessage string) {
 
-	fmt.Println(len(responseStruct.MovieList))
 	if len(responseStruct.ErrorMessage) == 0 {
 		for _, movie := range responseStruct.MovieList {
 
@@ -152,8 +177,10 @@ func assertValidInput(t *testing.T, responseStruct dto.MovieRentalResponse, name
 	}
 }
 
-func MakeApiCall(name string, t *testing.T, engine *gin.Engine) (dto.MovieRentalResponse, int) {
-	request, err := http.NewRequest(http.MethodGet, "/api/movies/"+name, nil)
+func MakeApiCall(name string, t *testing.T, engine *gin.Engine, queryParams map[string]string) (dto.MovieRentalResponse, int) {
+	url := CreateUrl(name, queryParams)
+	
+	request, err := http.NewRequest(http.MethodGet, url, nil)
 	require.NoError(t, err)
 
 	responseRecoder := httptest.NewRecorder()
@@ -164,4 +191,16 @@ func MakeApiCall(name string, t *testing.T, engine *gin.Engine) (dto.MovieRental
 	require.NoError(t, err)
 
 	return responseStruct, responseRecoder.Result().StatusCode
+}
+
+
+func CreateUrl(name string, queryParams map[string]string) string{
+	url := "/api/movies/"+name
+	if queryParams != nil {
+		url += "?"
+		for key, value := range queryParams {
+			url += fmt.Sprintf("%s=%s&", key, value)
+		}
+	}
+	return url
 }

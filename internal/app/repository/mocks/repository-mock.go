@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	dto "github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
+	request "github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/request"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -34,18 +35,33 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetMovies mocks base method.
-func (m *MockRepository) GetMovies() []dto.Movie {
+// CreateQuery mocks base method.
+func (m *MockRepository) CreateQuery(movieRequest *request.MoviesRequest) (string, []string) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMovies")
+	ret := m.ctrl.Call(m, "CreateQuery", movieRequest)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].([]string)
+	return ret0, ret1
+}
+
+// CreateQuery indicates an expected call of CreateQuery.
+func (mr *MockRepositoryMockRecorder) CreateQuery(movieRequest interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateQuery", reflect.TypeOf((*MockRepository)(nil).CreateQuery), movieRequest)
+}
+
+// GetMovies mocks base method.
+func (m *MockRepository) GetMovies(query string, params []string) []dto.Movie {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMovies", query, params)
 	ret0, _ := ret[0].([]dto.Movie)
 	return ret0
 }
 
 // GetMovies indicates an expected call of GetMovies.
-func (mr *MockRepositoryMockRecorder) GetMovies() *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetMovies(query, params interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMovies", reflect.TypeOf((*MockRepository)(nil).GetMovies))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMovies", reflect.TypeOf((*MockRepository)(nil).GetMovies), query, params)
 }
 
 // GetRatingsFor mocks base method.

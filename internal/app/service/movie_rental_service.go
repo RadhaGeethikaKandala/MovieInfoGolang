@@ -5,12 +5,13 @@ import (
 
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/client"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/request"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/repository"
 )
 
 type MovieService interface {
 	GetMovies(movieName string) ([]dto.Movie, error)
-	GetMoviesFromDb() []dto.Movie
+	GetMoviesFromDb(*request.MoviesRequest) []dto.Movie
 }
 
 type movieService struct {
@@ -27,8 +28,9 @@ func (ms *movieService) GetMovies(movieName string) ([]dto.Movie, error) {
 	return movieList, nil
 }
 
-func (ms *movieService) GetMoviesFromDb() []dto.Movie {
-	movies := ms.repository.GetMovies()
+func (ms *movieService) GetMoviesFromDb(movieRequest *request.MoviesRequest) []dto.Movie {
+	db_query_url, params := ms.repository.CreateQuery(movieRequest)
+	movies := ms.repository.GetMovies(db_query_url, params)
 	for idx, movie := range movies {
 		movies[idx].Ratings = ms.repository.GetRatingsFor(movie.Id)
 	}

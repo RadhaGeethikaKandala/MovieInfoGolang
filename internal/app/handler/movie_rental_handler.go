@@ -3,6 +3,8 @@ package handler
 import (
 	"strings"
 
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/request"
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/response"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/service"
 	"github.com/gin-gonic/gin"
 )
@@ -56,9 +58,18 @@ func (mh movieHandler) GetMovieList(ctx *gin.Context) {
 
 func (mh movieHandler) GetMoviesFromDb(ctx *gin.Context) {
 
-	movies := mh.service.GetMoviesFromDb()
+	var moviesRequest request.MoviesRequest
+	if err := ctx.ShouldBindQuery(&moviesRequest); err != nil {
+		ctx.JSON(400, response.ErrorResponse{
+			Status: "error",
+			Message: err.Error(),
+			Code: "400",
+		})
+	}
+
+	movies := mh.service.GetMoviesFromDb(&moviesRequest)
 	ctx.JSON(200, gin.H{
-		"movieList": movies,
+		"movies": movies,
 	})
 
 }
