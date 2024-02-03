@@ -20,5 +20,6 @@ func Router(engine *gin.Engine) {
 	movieRentalApiGroup := engine.Group("/api/movies/")
 	{
 		movieRentalApiGroup.GET("/", handler.GetMoviesFromDb)
+		movieRentalApiGroup.GET("/:imdbid", handler.GetMovieDetails)
 	}
 }

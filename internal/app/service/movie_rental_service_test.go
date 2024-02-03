@@ -11,14 +11,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMovieService(t *testing.T) {
+func TestGetMoviesFromDb(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	repository := mock_repository.NewMockRepository(ctrl)
 	client := mock_client.NewMockOmdbClient(ctrl)
 	service := NewMovieService(client, repository)
 
-	t.Run("service should return movie list", func(t *testing.T) {
+	t.Run("it should return movie list", func(t *testing.T) {
 		movieName := "batman"
 		movieList := []dto.Movie{
 			{
@@ -41,7 +41,7 @@ func TestMovieService(t *testing.T) {
 		assert.Equal(t, movieName+" returns", movies[1].Title)
 	})
 
-	t.Run("service should return error if movie name is not found", func(t *testing.T) {
+	t.Run("it should return error if movie name is not found", func(t *testing.T) {
 		movieName := "xyz"
 		var omdbResponse = dto.OmdbResponse{
 			Response: "False",
@@ -57,7 +57,7 @@ func TestMovieService(t *testing.T) {
 	})
 
 
-	t.Run("service should return all movies from db", func(t *testing.T) {
+	t.Run("it should return all movies from db", func(t *testing.T) {
 		movieTestData := []dto.Movie{
 			{Id: 1, Title: "batman"},
 			{Id: 2, Title: "batman returns"},
@@ -74,7 +74,7 @@ func TestMovieService(t *testing.T) {
 
 	})
 
-	t.Run("service should return movies with matching given genre", func(t *testing.T) {
+	t.Run("it should return movies with matching given genre", func(t *testing.T) {
 		movieTestData := []dto.Movie{
 
 			{
@@ -102,4 +102,38 @@ func TestMovieService(t *testing.T) {
 
 	})
 
+}
+
+func TestGetMovieDetails(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	repository := mock_repository.NewMockRepository(ctrl)
+	client := mock_client.NewMockOmdbClient(ctrl)
+	service := NewMovieService(client, repository)
+
+	t.Run("it should get the entire movie details with valid imdbid", func(t *testing.T) {
+		testMovieData := dto.Movie{
+				Id: 1,
+				Title:  "Batman returns",
+				Genre:  "Fantasy",
+				Actors: "Robert",
+				Year: "2022",
+				ImdbID: "1234",
+		}
+
+		ratingsTestData := []dto.Rating{
+				{Id: 2, Source: "Rotten Tomatoes", Value: "85%"},
+			}
+
+
+		repository.EXPECT().GetMovie("1234").Times(1).Return(testMovieData)
+		repository.EXPECT().GetRatingsFor(1).Times(1).Return(ratingsTestData)
+
+		movie := service.GetMovieDetails("1234")
+
+		assert.Equal(t, "Batman returns", movie.Title)
+		assert.Equal(t, "2022", movie.Year)
+		assert.Equal(t, "Rotten Tomatoes", movie.Ratings[0].Source)
+		assert.Equal(t, "85%", movie.Ratings[0].Value)
+
+	})
 }

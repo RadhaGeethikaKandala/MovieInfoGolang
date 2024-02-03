@@ -9,12 +9,25 @@ import (
 )
 
 type Repository interface {
+	GetMovie(imdbId string) dto.Movie
 	GetMovies(qmovieRequest *request.MoviesRequest) []dto.Movie
 	GetRatingsFor(movieId int) []dto.Rating
 }
 
 type repository struct {
 	db *sql.DB
+}
+
+// GetMovie implements Repository.
+func (r *repository) GetMovie(imdbId string) dto.Movie {
+	var movie dto.Movie
+	row := r.db.QueryRow("SELECT * FROM movies WHERE imdbid=$1", imdbId)
+	row.Scan(&movie.Id, &movie.Title, &movie.Year, &movie.Rated, &movie.Released,
+		&movie.Runtime, &movie.Genre, &movie.Director, &movie.Writer,
+		&movie.Actors, &movie.Plot, &movie.Language, &movie.Country, &movie.Awards,
+		&movie.Poster, &movie.Metascore, &movie.ImdbRating, &movie.ImdbVotes, &movie.ImdbID,
+		&movie.Type, &movie.DVD, &movie.BoxOffice, &movie.Production, &movie.Website, &movie.Response)
+	return movie
 }
 
 func (r *repository) GetMovies(movieRequest *request.MoviesRequest) []dto.Movie {

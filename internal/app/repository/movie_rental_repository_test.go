@@ -78,6 +78,28 @@ func TestGetMovies(t *testing.T) {
 
 }
 
+func TestGetMovie(t *testing.T) {
+	db, mock := NewMock()
+
+	repository := NewRepository(db)
+	row := sqlmock.NewRows([]string{"id", "title", "year", "rated", "released", "runtime", "genre", "director",
+			"writer", "actors", "plot", "language", "country",
+			"awards", "poster", "metascore", "imdbrating", "imdbvotes", "imdbid",
+			"type", "dvd", "boxoffice", "production", "website", "response"}).
+			AddRow("1", "Batman Begins", "2005", "PG-13", "15 Jun 2005", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+
+	queryString := "SELECT * FROM movies WHERE imdbid=$1"
+	mock.ExpectQuery(regexp.QuoteMeta(queryString)).WillReturnRows(row)
+
+	movie := repository.GetMovie("1234")
+
+	assert.Equal(t, "Batman Begins", movie.Title)
+	assert.Equal(t, "2005", movie.Year)
+	assert.Equal(t, "PG-13", movie.Rated)
+	assert.Equal(t, "15 Jun 2005", movie.Released)
+
+}
+
 func TestGetRatingsForMovies(t *testing.T) {
 	db, mock := NewMock()
 

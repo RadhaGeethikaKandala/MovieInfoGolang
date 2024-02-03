@@ -13,6 +13,7 @@ type MovieHandler interface {
 	SayHello(ctx *gin.Context)
 	GetMovieList(ctx *gin.Context)
 	GetMoviesFromDb(ctx *gin.Context)
+	GetMovieDetails(ctx *gin.Context)
 }
 
 type movieHandler struct {
@@ -56,19 +57,30 @@ func (mh movieHandler) GetMovieList(ctx *gin.Context) {
 }
 
 func (mh movieHandler) GetMoviesFromDb(ctx *gin.Context) {
-
 	var moviesRequest request.MoviesRequest
-	if err := ctx.ShouldBindQuery(&moviesRequest); err != nil {
-		ctx.JSON(400, response.ErrorResponse{
-			Status:  "error",
-			Message: err.Error(),
-			Code:    "400",
-		})
-	}
+	ctx.ShouldBindQuery(&moviesRequest)
 
 	movies := mh.service.GetMoviesFromDb(&moviesRequest)
 	ctx.JSON(200, gin.H{
 		"movies": movies,
+	})
+}
+
+func (mh movieHandler) GetMovieDetails(ctx *gin.Context) {
+	// get imdbid
+	imdbid := ctx.Param("imdbid")
+	if strings.TrimSpace(imdbid) == "" {
+		ctx.JSON(400, response.ErrorResponse{
+			Status:  "error",
+			Message: "name cannot be empty or have whitespaces",
+			Code:    "400",
+		})
+		return
+	}
+
+	movie := mh.service.GetMovieDetails(imdbid)
+	ctx.JSON(200, gin.H{
+		"movie_detail": movie,
 	})
 
 }

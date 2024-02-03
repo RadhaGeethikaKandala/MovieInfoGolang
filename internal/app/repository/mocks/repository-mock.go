@@ -35,6 +35,20 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// GetMovie mocks base method.
+func (m *MockRepository) GetMovie(imdbId string) dto.Movie {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMovie", imdbId)
+	ret0, _ := ret[0].(dto.Movie)
+	return ret0
+}
+
+// GetMovie indicates an expected call of GetMovie.
+func (mr *MockRepositoryMockRecorder) GetMovie(imdbId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMovie", reflect.TypeOf((*MockRepository)(nil).GetMovie), imdbId)
+}
+
 // GetMovies mocks base method.
 func (m *MockRepository) GetMovies(qmovieRequest *request.MoviesRequest) []dto.Movie {
 	m.ctrl.T.Helper()

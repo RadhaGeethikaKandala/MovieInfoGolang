@@ -31,18 +31,11 @@ func (ms *movieService) GetMovies(movieName string) ([]dto.Movie, error) {
 	return movieList, nil
 }
 
-// To be decomissioned
-// func (ms *movieService) GetMoviesFromDb(movieRequest *request.MoviesRequest) []dto.Movie {
-	// 	movies := ms.repository.GetMovies(movieRequest)
-	// 	for idx, movie := range movies {
-		// 		movies[idx].Ratings = ms.repository.GetRatingsFor(movie.Id)
-		// 	}
-		// 	return movies
-		// }
-
 // GetMovieDetails implements MovieService.
 func (ms *movieService) GetMovieDetails(imdbid string) dto.Movie {
-	panic("unimplemented")
+	movie := ms.repository.GetMovie(imdbid)
+	movie.Ratings = ms.repository.GetRatingsFor(movie.Id)
+	return movie
 }
 
 
