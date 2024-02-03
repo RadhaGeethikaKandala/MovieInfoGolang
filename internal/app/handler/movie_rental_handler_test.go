@@ -11,6 +11,7 @@ import (
 
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/request"
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/response"
 	mock_service "github.com/RadhaGeethikaKandala/MovieRental/internal/app/service/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -121,7 +122,7 @@ func TestGetMovies(t *testing.T) {
 	})
 
 	t.Run("service should return movie lists from db", func(t *testing.T) {
-		movieList := []dto.Movie{
+		movieList := []response.TruncatedMovieResponse{
 			{
 				Title: "spiderman1",
 			},
@@ -137,7 +138,7 @@ func TestGetMovies(t *testing.T) {
 	})
 
 	t.Run("service should return matching movies with matching given genre, actor or year", func(t *testing.T) {
-		movieList := []dto.Movie{
+		movieList := []response.TruncatedMovieResponse{
 			{
 				Title: "spiderman1",
 				Genre: "Action",

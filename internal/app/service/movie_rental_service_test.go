@@ -56,31 +56,21 @@ func TestMovieService(t *testing.T) {
 		assert.Equal(t, "Movie not found!", err.Error())
 	})
 
+
 	t.Run("service should return all movies from db", func(t *testing.T) {
 		movieTestData := []dto.Movie{
 			{Id: 1, Title: "batman"},
 			{Id: 2, Title: "batman returns"},
 		}
 
-		ratingsTestData1 := []dto.Rating{
-			{Id: 2, Source: "Rotten Tomatoes", Value: "85%"},
-		}
-
 		request := &request.MoviesRequest{}
 		repository.EXPECT().GetMovies(request).Times(1).Return(movieTestData)
-		repository.EXPECT().GetRatingsFor(gomock.Any()).Times(2).
-			Return(ratingsTestData1)
 
 		movies := service.GetMoviesFromDb(request)
 
 		assert.Equal(t, 2, len(movies))
 		assert.Equal(t, "batman", movies[0].Title)
-		assert.Equal(t, 1, len(movies[0].Ratings))
-		assert.Equal(t, "Rotten Tomatoes", movies[0].Ratings[0].Source)
-
-		assert.Equal(t, 1, len(movies[1].Ratings))
 		assert.Equal(t, "batman returns", movies[1].Title)
-		assert.Equal(t, "Rotten Tomatoes", movies[0].Ratings[0].Source)
 
 	})
 
@@ -94,14 +84,14 @@ func TestMovieService(t *testing.T) {
 			},
 		}
 
-		ratingsTestData1 := []dto.Rating{
-			{Id: 2, Source: "Rotten Tomatoes", Value: "85%"},
-		}
+		// ratingsTestData1 := []dto.Rating{
+		// 	{Id: 2, Source: "Rotten Tomatoes", Value: "85%"},
+		// }
 
 		request := &request.MoviesRequest{Genre: "Fantasy", Actors: "Robert"}
 		repository.EXPECT().GetMovies(request).Times(1).Return(movieTestData)
-		repository.EXPECT().GetRatingsFor(gomock.Any()).Times(1).
-			Return(ratingsTestData1)
+		// repository.EXPECT().GetRatingsFor(gomock.Any()).Times(1).
+		// 	Return(ratingsTestData1)
 
 		movies := service.GetMoviesFromDb(request)
 

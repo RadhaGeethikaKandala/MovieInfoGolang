@@ -9,6 +9,7 @@ import (
 
 	dto "github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
 	request "github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/request"
+	response "github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/response"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -35,6 +36,20 @@ func (m *MockMovieService) EXPECT() *MockMovieServiceMockRecorder {
 	return m.recorder
 }
 
+// GetMovieDetails mocks base method.
+func (m *MockMovieService) GetMovieDetails(imdbid string) dto.Movie {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMovieDetails", imdbid)
+	ret0, _ := ret[0].(dto.Movie)
+	return ret0
+}
+
+// GetMovieDetails indicates an expected call of GetMovieDetails.
+func (mr *MockMovieServiceMockRecorder) GetMovieDetails(imdbid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMovieDetails", reflect.TypeOf((*MockMovieService)(nil).GetMovieDetails), imdbid)
+}
+
 // GetMovies mocks base method.
 func (m *MockMovieService) GetMovies(movieName string) ([]dto.Movie, error) {
 	m.ctrl.T.Helper()
@@ -51,10 +66,10 @@ func (mr *MockMovieServiceMockRecorder) GetMovies(movieName interface{}) *gomock
 }
 
 // GetMoviesFromDb mocks base method.
-func (m *MockMovieService) GetMoviesFromDb(arg0 *request.MoviesRequest) []dto.Movie {
+func (m *MockMovieService) GetMoviesFromDb(arg0 *request.MoviesRequest) []response.TruncatedMovieResponse {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMoviesFromDb", arg0)
-	ret0, _ := ret[0].([]dto.Movie)
+	ret0, _ := ret[0].([]response.TruncatedMovieResponse)
 	return ret0
 }
 
