@@ -155,8 +155,8 @@ func TestGetMovies(t *testing.T) {
 				Year: "2007",
 			},
 		}
-		service.EXPECT().GetMoviesFromDb(&request.MoviesRequest{}).Times(1).Return(movieList)
-		responseStruct, code := MakeApiCall("", t, engine, map[string]string{"genre":"Action", "actor":"Robert", "year": "2007"})
+		service.EXPECT().GetMoviesFromDb(&request.MoviesRequest{Genre:"Action", Actors: "Robert", Year: "2007"}).Times(1).Return(movieList)
+		responseStruct, code := MakeApiCall("", t, engine, map[string]string{"genre":"Action", "actors":"Robert", "year": "2007"})
 		assertValidInput(t, responseStruct, "", "")
 		assert.Equal(t, http.StatusOK, code)
 
@@ -179,7 +179,7 @@ func assertValidInput(t *testing.T, responseStruct dto.MovieRentalResponse, name
 
 func MakeApiCall(name string, t *testing.T, engine *gin.Engine, queryParams map[string]string) (dto.MovieRentalResponse, int) {
 	url := CreateUrl(name, queryParams)
-	
+
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	require.NoError(t, err)
 
