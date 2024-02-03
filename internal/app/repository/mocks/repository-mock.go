@@ -35,33 +35,18 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// CreateQuery mocks base method.
-func (m *MockRepository) CreateQuery(movieRequest *request.MoviesRequest) (string, []string) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateQuery", movieRequest)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].([]string)
-	return ret0, ret1
-}
-
-// CreateQuery indicates an expected call of CreateQuery.
-func (mr *MockRepositoryMockRecorder) CreateQuery(movieRequest interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateQuery", reflect.TypeOf((*MockRepository)(nil).CreateQuery), movieRequest)
-}
-
 // GetMovies mocks base method.
-func (m *MockRepository) GetMovies(query string, params []string) []dto.Movie {
+func (m *MockRepository) GetMovies(qmovieRequest *request.MoviesRequest) []dto.Movie {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMovies", query, params)
+	ret := m.ctrl.Call(m, "GetMovies", qmovieRequest)
 	ret0, _ := ret[0].([]dto.Movie)
 	return ret0
 }
 
 // GetMovies indicates an expected call of GetMovies.
-func (mr *MockRepositoryMockRecorder) GetMovies(query, params interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetMovies(qmovieRequest interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMovies", reflect.TypeOf((*MockRepository)(nil).GetMovies), query, params)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMovies", reflect.TypeOf((*MockRepository)(nil).GetMovies), qmovieRequest)
 }
 
 // GetRatingsFor mocks base method.

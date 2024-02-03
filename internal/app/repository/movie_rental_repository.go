@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
@@ -10,60 +9,15 @@ import (
 )
 
 type Repository interface {
-	GetMovies(query string, params []string) []dto.Movie
+	GetMovies(qmovieRequest *request.MoviesRequest) []dto.Movie
 	GetRatingsFor(movieId int) []dto.Rating
-	CreateQuery(movieRequest *request.MoviesRequest) (string, []string)
 }
 
 type repository struct {
 	db *sql.DB
 }
 
-func (r *repository) CreateQuery(movieRequest *request.MoviesRequest) (string, []string) {
-	query := "SELECT * FROM movies"
-	param_position_count := 1
-	conditional_regex_query := " LOWER(%s) LIKE LOWER('%%' || $%d || '%%')"
-	conditional_exact_query := " LOWER(%s)=$%d"
-
-	params := []string{}
-
-	whereFlag := false
-
-	if movieRequest.Genre != "" {
-		if !whereFlag {
-			query += " WHERE" + fmt.Sprintf(conditional_regex_query, "genre", param_position_count)
-			whereFlag = true
-		} else {
-			query += " AND" + fmt.Sprintf(conditional_regex_query, "genre", param_position_count)
-		}
-		params = append(params, movieRequest.Genre)
-		param_position_count++
-	}
-	if movieRequest.Year != "" {
-		if !whereFlag {
-			query += " WHERE" + fmt.Sprintf(conditional_exact_query, "year", param_position_count)
-			whereFlag = true
-		} else {
-			query += " AND" + fmt.Sprintf(conditional_exact_query, "year", param_position_count)
-		}
-		params = append(params, movieRequest.Year)
-		param_position_count++
-	}
-	if movieRequest.Actors != "" {
-		if !whereFlag {
-			query += " WHERE" + fmt.Sprintf(conditional_regex_query, "actors", param_position_count)
-			whereFlag = true
-		} else {
-			query += " AND" + fmt.Sprintf(conditional_regex_query, "actors", param_position_count)
-		}
-		params = append(params, movieRequest.Actors)
-		param_position_count++
-	}
-
-	return query, params
-}
-
-func (r *repository) GetMovies(query string, params []string) []dto.Movie {
+func (r *repository) GetMovies(movieRequest *request.MoviesRequest) []dto.Movie {
 
 	// query := `SELECT * FROM movies m
 	// 					 LEFT JOIN moviesratings mr
@@ -71,9 +25,8 @@ func (r *repository) GetMovies(query string, params []string) []dto.Movie {
 	// 					 RIGHT JOIN ratings r
 	// 					 ON mr.rating_id = r.id`
 
-	params_conv := transformParams(params)
-
-	rows, err := r.db.Query(query, params_conv...)
+	query, params := buildMovieRentalQuery(movieRequest)
+	rows, err := r.db.Query(query, params...)
 	if err != nil {
 		log.Fatalf("Error while querying data: %s", err.Error())
 	}
@@ -116,14 +69,6 @@ func (r *repository) GetRatingsFor(movieId int) []dto.Rating {
 	}
 
 	return ratings
-}
-
-func transformParams(params []string) []interface{} {
-	var params_conv []interface{}
-	for _, param := range params {
-		params_conv =append(params_conv, param)
-	}
-	return params_conv
 }
 
 func NewRepository(conn *sql.DB) Repository {

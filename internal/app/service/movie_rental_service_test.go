@@ -67,8 +67,7 @@ func TestMovieService(t *testing.T) {
 		}
 
 		request := &request.MoviesRequest{}
-		repository.EXPECT().CreateQuery(request).Times(1).Return("url", []string{})
-		repository.EXPECT().GetMovies("url", []string{}).Times(1).Return(movieTestData)
+		repository.EXPECT().GetMovies(request).Times(1).Return(movieTestData)
 		repository.EXPECT().GetRatingsFor(gomock.Any()).Times(2).
 			Return(ratingsTestData1)
 
@@ -100,9 +99,8 @@ func TestMovieService(t *testing.T) {
 			{Id: 2, Source: "Rotten Tomatoes", Value: "85%"},
 		}
 
-		request := &request.MoviesRequest{ Genre: "Fantasy"}
-		repository.EXPECT().CreateQuery(request).Times(1).Return("Some query", []string{"Fantasy", "Robert"})
-		repository.EXPECT().GetMovies("Some query", []string{"Fantasy", "Robert"}).Times(1).Return(movieTestData)
+		request := &request.MoviesRequest{ Genre: "Fantasy", Actors: "Robert"}
+		repository.EXPECT().GetMovies(request).Times(1).Return(movieTestData)
 		repository.EXPECT().GetRatingsFor(gomock.Any()).Times(1).
 			Return(ratingsTestData1)
 
