@@ -36,6 +36,20 @@ func (m *MockMovieService) EXPECT() *MockMovieServiceMockRecorder {
 	return m.recorder
 }
 
+// AddMovieToCart mocks base method.
+func (m *MockMovieService) AddMovieToCart(arg0 *request.AddToCartRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddMovieToCart", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddMovieToCart indicates an expected call of AddMovieToCart.
+func (mr *MockMovieServiceMockRecorder) AddMovieToCart(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddMovieToCart", reflect.TypeOf((*MockMovieService)(nil).AddMovieToCart), arg0)
+}
+
 // GetMovieDetails mocks base method.
 func (m *MockMovieService) GetMovieDetails(imdbid string) (response.MovieResponse, error) {
 	m.ctrl.T.Helper()

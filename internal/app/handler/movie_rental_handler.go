@@ -14,7 +14,7 @@ type MovieHandler interface {
 	GetMovieList(ctx *gin.Context)
 	GetMoviesFromDb(ctx *gin.Context)
 	GetMovieDetails(ctx *gin.Context)
-	AddMoviesToCart(ctx *gin.Context)
+	AddMovieToCart(ctx *gin.Context)
 }
 
 type movieHandler struct {
@@ -70,8 +70,8 @@ func (mh movieHandler) GetMoviesFromDb(ctx *gin.Context) {
 func (mh movieHandler) GetMovieDetails(ctx *gin.Context) {
 	imdbid := ctx.Param("imdbid")
 	if strings.TrimSpace(imdbid) == "" {
-		ctx.JSON(400, response.ErrorResponse{
-			Status:  "error",
+		ctx.JSON(400, response.ApiResponse{
+			Status:  "failure",
 			Message: "name cannot be empty or have whitespaces",
 			Code:    "400",
 		})
@@ -80,8 +80,8 @@ func (mh movieHandler) GetMovieDetails(ctx *gin.Context) {
 
 	movieReponse, err := mh.service.GetMovieDetails(imdbid)
 	if err != nil {
-		ctx.JSON(400, response.ErrorResponse{
-			Status:  "error",
+		ctx.JSON(400, response.ApiResponse{
+			Status:  "failure",
 			Message: err.Error(),
 			Code:    "400",
 		})
@@ -92,6 +92,31 @@ func (mh movieHandler) GetMovieDetails(ctx *gin.Context) {
 }
 
 // AddMoviesToCart implements MovieHandler.
-func (*movieHandler) AddMoviesToCart(ctx *gin.Context){
-	panic("unimplemented")
+func (mh *movieHandler) AddMovieToCart(ctx *gin.Context){
+	var request request.AddToCartRequest
+	err:=ctx.ShouldBindJSON(&request)
+	if err != nil {
+		ctx.JSON(400, response.ApiResponse{
+			Status:  "failure",
+			Message: err.Error(),
+			Code:    "400",
+		})
+		return
+	}
+
+	err = mh.service.AddMovieToCart(&request)
+	if err != nil {
+		ctx.JSON(400, response.ApiResponse{
+			Status:  "failure",
+			Message: err.Error(),
+			Code:    "400",
+		})
+		return
+	}
+
+	ctx.JSON(200,response.ApiResponse{
+		Status: "success",
+		Message: "Added movie to cart successfully",
+		Code: "200",
+	})
 }

@@ -14,12 +14,14 @@ type MovieService interface {
 	GetMovies(movieName string) ([]dto.Movie, error)
 	GetMoviesFromDb(*request.MoviesRequest) response.TruncatedMovieReponse
 	GetMovieDetails(imdbid string) (response.MovieResponse, error)
+	AddMovieToCart(*request.AddToCartRequest) error
 }
 
 type movieService struct {
 	omdbClient client.OmdbClient
 	repository repository.Repository
 }
+
 
 
 func (ms *movieService) GetMovies(movieName string) ([]dto.Movie, error) {
@@ -54,6 +56,11 @@ func (ms *movieService) GetMoviesFromDb(movieRequest *request.MoviesRequest) res
 		truncatedMovies = append(truncatedMovies, truncatedMovie)
 	}
 	return response.TruncatedMovieReponse{Movies: truncatedMovies}
+}
+
+// AddMovieToCart implements MovieService.
+func (*movieService) AddMovieToCart(*request.AddToCartRequest) error {
+	panic("unimplemented")
 }
 
 func NewMovieService(c client.OmdbClient, r repository.Repository) MovieService {

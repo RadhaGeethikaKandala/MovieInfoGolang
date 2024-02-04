@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -207,12 +209,65 @@ func TestCart(t *testing.T) {
 	service := mock_service.NewMockMovieService(ctrl)
 	handler := NewHandler(service)
 
-	engine.GET("/api/movies/cart", handler.AddMoviesToCart)
+	engine.POST("/api/movies/cart", handler.AddMovieToCart)
 
-	t.Run("it should add movies to cart if user is valid", func(t *testing.T) {
-		// TODO ...
+	t.Run("it should add movies to cart if user is valid and movie is valid", func(t *testing.T) {
+
+		addToCartReq := request.AddToCartRequest{
+			Userid: "1",
+			Movieid: "1",
+		}
+
+		service.EXPECT().AddMovieToCart(&addToCartReq).Times(1).Return(nil)
+
+		marshalled, err := json.Marshal(addToCartReq)
+		require.NoError(t, err)
+
+		request, err := http.NewRequest(http.MethodPost, "/api/movies/cart", bytes.NewReader(marshalled))
+		require.NoError(t, err)
+
+		responseRecoder := httptest.NewRecorder()
+		engine.ServeHTTP(responseRecoder, request)
+
+		var responseStruct response.ApiResponse
+		json.NewDecoder(responseRecoder.Body).Decode(&responseStruct)
+		require.NoError(t, err)
+
+		val, _ := strconv.Atoi(responseStruct.Code)
+		assert.Equal(t, http.StatusOK, val)
+		assert.Equal(t, "Added movie to cart successfully", responseStruct.Message)
+	})
+
+	t.Run("it should add movies to cart if user or movie is invalid", func(t *testing.T) {
+
+		addToCartReq := request.AddToCartRequest{
+			Userid: "1invalid",
+			Movieid: "1invalid",
+		}
+
+		service.EXPECT().AddMovieToCart(&addToCartReq).Times(1).Return(errors.New("invalid user id"))
+
+		marshalled, err := json.Marshal(addToCartReq)
+		require.NoError(t, err)
+
+		request, err := http.NewRequest(http.MethodPost, "/api/movies/cart", bytes.NewReader(marshalled))
+		require.NoError(t, err)
+
+		responseRecoder := httptest.NewRecorder()
+		engine.ServeHTTP(responseRecoder, request)
+
+		var responseStruct response.ApiResponse
+		json.NewDecoder(responseRecoder.Body).Decode(&responseStruct)
+		require.NoError(t, err)
+
+		val, _ := strconv.Atoi(responseStruct.Code)
+		assert.Equal(t, http.StatusBadRequest, val)
+		assert.Equal(t, "invalid user id", responseStruct.Message)
 	})
 }
+
+
+
 
 func assertValidInput(t *testing.T, responseStruct response.TruncatedMovieReponse, name string, errMessage string) {
 
@@ -225,21 +280,6 @@ func assertValidInput(t *testing.T, responseStruct response.TruncatedMovieRepons
 	// 	assert.Equal(t, 0, len(responseStruct.MovieList))
 	// 	assert.Equal(t, errMessage, responseStruct.ErrorMessage)
 	// }
-}
-
-func MakeCartApiCall(t *testing.T, engine *gin.Engine) (response.TruncatedMovieReponse, int) {
-
-	request, err := http.NewRequest(http.MethodGet, "/api/movies/cart", nil)
-	require.NoError(t, err)
-
-	responseRecoder := httptest.NewRecorder()
-	engine.ServeHTTP(responseRecoder, request)
-
-	var responseStruct response.TruncatedMovieReponse
-	json.NewDecoder(responseRecoder.Body).Decode(&responseStruct)
-	require.NoError(t, err)
-
-	return responseStruct, responseRecoder.Result().StatusCode
 }
 
 func MakeMoviesApiCall(pathParam string, t *testing.T, engine *gin.Engine, queryParams map[string]interface{}) (response.TruncatedMovieReponse, int) {
