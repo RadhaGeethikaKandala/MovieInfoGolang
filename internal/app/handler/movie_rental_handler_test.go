@@ -214,8 +214,8 @@ func TestCart(t *testing.T) {
 	t.Run("it should add movies to cart if user is valid and movie is valid", func(t *testing.T) {
 
 		addToCartReq := request.AddToCartRequest{
-			Userid: "1",
-			Movieid: "1",
+			UserId: "1",
+			ImdbId: "1",
 		}
 
 		service.EXPECT().AddMovieToCart(&addToCartReq).Times(1).Return(nil)
@@ -241,8 +241,8 @@ func TestCart(t *testing.T) {
 	t.Run("it should add movies to cart if user or movie is invalid", func(t *testing.T) {
 
 		addToCartReq := request.AddToCartRequest{
-			Userid: "1invalid",
-			Movieid: "1invalid",
+			UserId: "1invalid",
+			ImdbId: "invalidimdb",
 		}
 
 		service.EXPECT().AddMovieToCart(&addToCartReq).Times(1).Return(errors.New("invalid user id"))

@@ -33,7 +33,6 @@ func (ms *movieService) GetMovies(movieName string) ([]dto.Movie, error) {
 	return movieList, nil
 }
 
-// GetMovieDetails implements MovieService.
 func (ms *movieService) GetMovieDetails(imdbid string) (response.MovieResponse, error) {
 	movie := ms.repository.GetMovie(imdbid)
 	if movie.Id == 0 {
@@ -42,6 +41,8 @@ func (ms *movieService) GetMovieDetails(imdbid string) (response.MovieResponse, 
 	movie.Ratings = ms.repository.GetRatingsFor(movie.Id)
 	return response.MovieResponse{Movie: movie}, nil
 }
+
+
 
 func (ms *movieService) GetMoviesFromDb(movieRequest *request.MoviesRequest) response.TruncatedMovieReponse {
 	var truncatedMovies = make([]response.TruncatedMovie, 0)
@@ -58,9 +59,17 @@ func (ms *movieService) GetMoviesFromDb(movieRequest *request.MoviesRequest) res
 	return response.TruncatedMovieReponse{Movies: truncatedMovies}
 }
 
-// AddMovieToCart implements MovieService.
-func (*movieService) AddMovieToCart(*request.AddToCartRequest) error {
-	panic("unimplemented")
+func (ms *movieService) AddMovieToCart(request *request.AddToCartRequest) error {
+	movie := ms.repository.GetMovie(request.ImdbId)
+	if movie.Id == 0 {
+		return errors.New("no movie found with the given imdbid")
+	}
+	customer := ms.repository.GetCustomer(request.UserId)
+	if customer.Id == 0 {
+		return errors.New("no customer found with the given imdbid")
+	}
+	err := ms.repository.AddMovieToCart(request.UserId, request.ImdbId)
+	return err
 }
 
 func NewMovieService(c client.OmdbClient, r repository.Repository) MovieService {

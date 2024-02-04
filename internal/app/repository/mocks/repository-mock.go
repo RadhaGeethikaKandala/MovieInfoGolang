@@ -35,6 +35,34 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// AddMovieToCart mocks base method.
+func (m *MockRepository) AddMovieToCart(custId, imdbId string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddMovieToCart", custId, imdbId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddMovieToCart indicates an expected call of AddMovieToCart.
+func (mr *MockRepositoryMockRecorder) AddMovieToCart(custId, imdbId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddMovieToCart", reflect.TypeOf((*MockRepository)(nil).AddMovieToCart), custId, imdbId)
+}
+
+// GetCustomer mocks base method.
+func (m *MockRepository) GetCustomer(custId string) dto.Customer {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCustomer", custId)
+	ret0, _ := ret[0].(dto.Customer)
+	return ret0
+}
+
+// GetCustomer indicates an expected call of GetCustomer.
+func (mr *MockRepositoryMockRecorder) GetCustomer(custId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCustomer", reflect.TypeOf((*MockRepository)(nil).GetCustomer), custId)
+}
+
 // GetMovie mocks base method.
 func (m *MockRepository) GetMovie(imdbId string) dto.Movie {
 	m.ctrl.T.Helper()

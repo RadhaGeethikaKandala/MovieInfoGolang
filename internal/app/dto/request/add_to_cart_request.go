@@ -1,6 +1,6 @@
 package request
 
 type AddToCartRequest struct {
-	Userid string `json:"userid"`
-	Movieid string `json:"movieid"`
+	UserId string `json:"userid"`
+	ImdbId string `json:"imdbid"`
 }

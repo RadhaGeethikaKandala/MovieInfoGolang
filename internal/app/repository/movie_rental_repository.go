@@ -12,11 +12,14 @@ type Repository interface {
 	GetMovie(imdbId string) dto.Movie
 	GetMovies(qmovieRequest *request.MoviesRequest) []dto.Movie
 	GetRatingsFor(movieId int) []dto.Rating
+	GetCustomer(custId string) dto.Customer
+	AddMovieToCart(custId string, imdbId string) error
 }
 
 type repository struct {
 	db *sql.DB
 }
+
 
 // GetMovie implements Repository.
 func (r *repository) GetMovie(imdbId string) dto.Movie {
@@ -82,6 +85,15 @@ func (r *repository) GetRatingsFor(movieId int) []dto.Rating {
 	}
 
 	return ratings
+}
+
+func (*repository) GetCustomer(custId string) dto.Customer {
+	panic("unimplemented")
+}
+
+
+func (*repository) AddMovieToCart(custId string, imdbId string) error {
+	panic("unimplemented")
 }
 
 func NewRepository(conn *sql.DB) Repository {
