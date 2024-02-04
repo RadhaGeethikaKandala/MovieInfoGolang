@@ -1,0 +1,12 @@
+
+server:
+  host: 127.0.0.1
+  port: 8085
+
+database:
+  username: movierental
+  password: movierental
+  dbname: movie_rental
+  host: 127.0.0.1
+  port: 5432
+  sslmode: disable

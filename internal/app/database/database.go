@@ -5,21 +5,27 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/config"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 )
 
+var (
+	databaseConf = config.ReadConfig().Database
+	dataSource = fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		databaseConf.Username,
+		databaseConf.Password,
+		databaseConf.Host,
+		databaseConf.Port,
+		databaseConf.Dbname,
+		databaseConf.Sslmode,
+	)
+)
 
 func CreateDatabaseConn() *sql.DB{
-	dataSource := fmt.Sprintf(
-		"postgres://%s:%s@localhost:5432/%s?sslmode=disable",
-		"movierental",
-		"movierental",
-		"movie_rental",
-	)
-
 	dbConn, err := sql.Open("postgres", dataSource)
 	errString := "Unable to open a connection to database, error: %s"
 	if err != nil {
@@ -33,14 +39,9 @@ func CreateDatabaseConn() *sql.DB{
 }
 
 func RunDatabaseMigrations() {
-	dataSource := fmt.Sprintf(
-		"postgres://%s:%s@localhost:5432/%s?sslmode=disable",
-		"movierental",
-		"movierental",
-		"movie_rental",
-	)
+	migrations_uri := "file://internal/app/database/migrations"
 
-	m, err := migrate.New("file://internal/app/database/migrations", dataSource)
+	m, err := migrate.New(migrations_uri, dataSource)
 	if err != nil {
 		log.Fatal(err)
 	}

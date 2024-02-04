@@ -1,12 +1,12 @@
 package main
 
 import (
+	"fmt"
 
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/config"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/database"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/router"
 	"github.com/gin-gonic/gin"
-
 )
 
 func init() {
@@ -15,6 +15,11 @@ func init() {
 
 func main() {
 
+	// Get Server Configuration
+	serverConf := config.ReadConfig().Server
+	host := serverConf.Host
+	port := serverConf.Port
+
 	// Run DB migration
 	database.RunDatabaseMigrations()
 
@@ -22,5 +27,5 @@ func main() {
 	engine := gin.Default()
 	router.Router(engine)
 
-	engine.Run(":8085")
+	engine.Run(fmt.Sprintf("%s:%s", host, port))
 }
