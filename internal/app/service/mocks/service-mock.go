@@ -37,10 +37,10 @@ func (m *MockMovieService) EXPECT() *MockMovieServiceMockRecorder {
 }
 
 // GetMovieDetails mocks base method.
-func (m *MockMovieService) GetMovieDetails(imdbid string) dto.Movie {
+func (m *MockMovieService) GetMovieDetails(imdbid string) response.MovieResponse {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMovieDetails", imdbid)
-	ret0, _ := ret[0].(dto.Movie)
+	ret0, _ := ret[0].(response.MovieResponse)
 	return ret0
 }
 
@@ -66,10 +66,10 @@ func (mr *MockMovieServiceMockRecorder) GetMovies(movieName interface{}) *gomock
 }
 
 // GetMoviesFromDb mocks base method.
-func (m *MockMovieService) GetMoviesFromDb(arg0 *request.MoviesRequest) []response.TruncatedMovieResponse {
+func (m *MockMovieService) GetMoviesFromDb(arg0 *request.MoviesRequest) response.TruncatedMovieReponse {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMoviesFromDb", arg0)
-	ret0, _ := ret[0].([]response.TruncatedMovieResponse)
+	ret0, _ := ret[0].(response.TruncatedMovieReponse)
 	return ret0
 }
 

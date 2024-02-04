@@ -66,11 +66,11 @@ func TestGetMoviesFromDb(t *testing.T) {
 		request := &request.MoviesRequest{}
 		repository.EXPECT().GetMovies(request).Times(1).Return(movieTestData)
 
-		movies := service.GetMoviesFromDb(request)
+		truncatedMovieReponse := service.GetMoviesFromDb(request)
 
-		assert.Equal(t, 2, len(movies))
-		assert.Equal(t, "batman", movies[0].Title)
-		assert.Equal(t, "batman returns", movies[1].Title)
+		assert.Equal(t, 2, len(truncatedMovieReponse.Movies))
+		assert.Equal(t, "batman", truncatedMovieReponse.Movies[0].Title)
+		assert.Equal(t, "batman returns", truncatedMovieReponse.Movies[1].Title)
 
 	})
 
@@ -93,12 +93,12 @@ func TestGetMoviesFromDb(t *testing.T) {
 		// repository.EXPECT().GetRatingsFor(gomock.Any()).Times(1).
 		// 	Return(ratingsTestData1)
 
-		movies := service.GetMoviesFromDb(request)
+		truncatedMovieReponse := service.GetMoviesFromDb(request)
 
-		assert.Equal(t, 1, len(movies))
-		assert.Equal(t, "spiderman2", movies[0].Title)
-		assert.Equal(t, "Fantasy", movies[0].Genre)
-		assert.Equal(t, "Robert", movies[0].Actors)
+		assert.Equal(t, 1, len(truncatedMovieReponse.Movies))
+		assert.Equal(t, "spiderman2", truncatedMovieReponse.Movies[0].Title)
+		assert.Equal(t, "Fantasy", truncatedMovieReponse.Movies[0].Genre)
+		assert.Equal(t, "Robert", truncatedMovieReponse.Movies[0].Actors)
 
 	})
 
@@ -128,12 +128,12 @@ func TestGetMovieDetails(t *testing.T) {
 		repository.EXPECT().GetMovie("1234").Times(1).Return(testMovieData)
 		repository.EXPECT().GetRatingsFor(1).Times(1).Return(ratingsTestData)
 
-		movie := service.GetMovieDetails("1234")
+		movieReponse := service.GetMovieDetails("1234")
 
-		assert.Equal(t, "Batman returns", movie.Title)
-		assert.Equal(t, "2022", movie.Year)
-		assert.Equal(t, "Rotten Tomatoes", movie.Ratings[0].Source)
-		assert.Equal(t, "85%", movie.Ratings[0].Value)
+		assert.Equal(t, "Batman returns", movieReponse.Movie.Title)
+		assert.Equal(t, "2022", movieReponse.Movie.Year)
+		assert.Equal(t, "Rotten Tomatoes", movieReponse.Movie.Ratings[0].Source)
+		assert.Equal(t, "85%", movieReponse.Movie.Ratings[0].Value)
 
 	})
 }

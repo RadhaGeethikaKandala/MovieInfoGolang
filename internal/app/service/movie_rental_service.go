@@ -12,8 +12,8 @@ import (
 
 type MovieService interface {
 	GetMovies(movieName string) ([]dto.Movie, error)
-	GetMoviesFromDb(*request.MoviesRequest) []response.TruncatedMovieResponse
-	GetMovieDetails(imdbid string) dto.Movie
+	GetMoviesFromDb(*request.MoviesRequest) response.TruncatedMovieReponse
+	GetMovieDetails(imdbid string) response.MovieResponse
 }
 
 type movieService struct {
@@ -32,26 +32,27 @@ func (ms *movieService) GetMovies(movieName string) ([]dto.Movie, error) {
 }
 
 // GetMovieDetails implements MovieService.
-func (ms *movieService) GetMovieDetails(imdbid string) dto.Movie {
+func (ms *movieService) GetMovieDetails(imdbid string) response.MovieResponse {
 	movie := ms.repository.GetMovie(imdbid)
 	movie.Ratings = ms.repository.GetRatingsFor(movie.Id)
-	return movie
+	movieResponse := response.MovieResponse{Movie: movie}
+	return movieResponse
 }
 
 
-func (ms *movieService) GetMoviesFromDb(movieRequest *request.MoviesRequest) []response.TruncatedMovieResponse {
-	var truncatedMovies = make([]response.TruncatedMovieResponse, 0)
+func (ms *movieService) GetMoviesFromDb(movieRequest *request.MoviesRequest) response.TruncatedMovieReponse {
+	var truncatedMovies = make([]response.TruncatedMovie, 0)
 	movies := ms.repository.GetMovies(movieRequest)
 
 	for _, movie := range movies {
-		truncatedMovie := response.TruncatedMovieResponse{
+		truncatedMovie := response.TruncatedMovie{
 			Title: movie.Title, Year: movie.Year,
 			Rated: movie.Rated, Actors: movie.Actors,
 			Genre: movie.Genre,
 		}
 		truncatedMovies = append(truncatedMovies, truncatedMovie)
 	}
-	return truncatedMovies
+	return response.TruncatedMovieReponse{Movies: truncatedMovies}
 }
 
 func NewMovieService(c client.OmdbClient, r repository.Repository) MovieService {
