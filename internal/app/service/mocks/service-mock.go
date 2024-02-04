@@ -37,11 +37,12 @@ func (m *MockMovieService) EXPECT() *MockMovieServiceMockRecorder {
 }
 
 // GetMovieDetails mocks base method.
-func (m *MockMovieService) GetMovieDetails(imdbid string) response.MovieResponse {
+func (m *MockMovieService) GetMovieDetails(imdbid string) (response.MovieResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMovieDetails", imdbid)
 	ret0, _ := ret[0].(response.MovieResponse)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetMovieDetails indicates an expected call of GetMovieDetails.

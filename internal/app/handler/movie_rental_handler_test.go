@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -67,7 +68,7 @@ func TestGetMovies(t *testing.T) {
 
 	// 	service.EXPECT().GetMovies(name).Times(1).Return(movieList, nil)
 
-	// 	responseStruct, code := MakeApiCall(name, t, engine, nil)
+	// 	responseStruct, code := MakeMoviesApiCall(name, t, engine, nil)
 
 	// 	assertValidInput(t, responseStruct, name, "")
 	// 	assert.Equal(t, http.StatusOK, code)
@@ -88,7 +89,7 @@ func TestGetMovies(t *testing.T) {
 
 	// 	service.EXPECT().GetMovies(name).Times(1).Return(movieList, nil)
 
-	// 	responseStruct, code := MakeApiCall(name, t, engine, nil)
+	// 	responseStruct, code := MakeMoviesApiCall(name, t, engine, nil)
 
 	// 	assertValidInput(t, responseStruct, name, "")
 	// 	assert.Equal(t, http.StatusOK, code)
@@ -102,7 +103,7 @@ func TestGetMovies(t *testing.T) {
 
 	// 	service.EXPECT().GetMovies(name).Times(1).Return(nil, errFromService)
 
-	// 	responseStruct, code := MakeApiCall(name, t, engine, nil)
+	// 	responseStruct, code := MakeMoviesApiCall(name, t, engine, nil)
 
 	// 	assertValidInput(t, responseStruct, name, errFromService.Error())
 	// 	assert.Equal(t, http.StatusOK, code)
@@ -115,15 +116,15 @@ func TestGetMovies(t *testing.T) {
 
 	// 	service.EXPECT().GetMovies(name).Times(0)
 
-	// 	responseStruct, code := MakeApiCall(name, t, engine, nil)
+	// 	responseStruct, code := MakeMoviesApiCall(name, t, engine, nil)
 
 	// 	assert.Equal(t, err.Error(), responseStruct.ErrorMessage)
 	// 	assert.Equal(t, http.StatusBadRequest, code)
 
 	// })
 
-	t.Run("service should return movie lists from db", func(t *testing.T) {
-		movieList := []response.TruncatedMovieResponse{
+	t.Run("it should return movie lists from db", func(t *testing.T) {
+		truncatedMovies := []response.TruncatedMovie{
 			{
 				Title: "spiderman1",
 			},
@@ -132,15 +133,15 @@ func TestGetMovies(t *testing.T) {
 			},
 		}
 
+		movieList := response.TruncatedMovieReponse{Movies: truncatedMovies}
 		service.EXPECT().GetMoviesFromDb(&request.MoviesRequest{}).Times(1).Return(movieList)
-		responseStruct, code := MakeApiCall("", t, engine, nil)
+		responseStruct, code := MakeMoviesApiCall("", t, engine, nil)
 		assertValidInput(t, responseStruct, "", "")
 		assert.Equal(t, http.StatusOK, code)
 	})
 
-
-	t.Run("service should return matching movies with matching given genre, actor or year", func(t *testing.T) {
-		movieList := []response.TruncatedMovieResponse{
+	t.Run("it should return matching movies with matching given genre, actor or year", func(t *testing.T) {
+		truncatedMovies := []response.TruncatedMovie{
 			{
 				Title: "spiderman1",
 				Genre: "Action",
@@ -156,54 +157,93 @@ func TestGetMovies(t *testing.T) {
 				Year:  "2007",
 			},
 		}
+		movieList := response.TruncatedMovieReponse{Movies: truncatedMovies}
 		mymap := make(map[string]interface{})
-		mymap["genre"]="Action"
-		mymap["actors"]="Robert"
-		mymap["year"]="2007"
+		mymap["genre"] = "Action"
+		mymap["actors"] = "Robert"
+		mymap["year"] = "2007"
 		service.EXPECT().GetMoviesFromDb(&request.MoviesRequest{Genre: "Action", Actors: "Robert", Year: "2007"}).Times(1).Return(movieList)
-		responseStruct, code := MakeApiCall("", t, engine, mymap)
+		responseStruct, code := MakeMoviesApiCall("", t, engine, mymap)
 		assertValidInput(t, responseStruct, "", "")
 		assert.Equal(t, http.StatusOK, code)
 
 	})
 
-	t.Run("service should return movie details for correct imdbid", func(t *testing.T) {
+	t.Run("it should return movie details for correct imdbid", func(t *testing.T) {
 		movie := dto.Movie{
 			Title:  "spiderman2",
 			Genre:  "Fantasy",
 			Actors: "Robert",
 		}
-		service.EXPECT().GetMovieDetails("imdb12345").Times(1).Return(movie)
-		responseStruct, code := MakeApiCall("imdb12345", t, engine, nil)
+		movieResp := response.MovieResponse{Movie: movie}
+		service.EXPECT().GetMovieDetails("imdb12345").Times(1).Return(movieResp, nil)
+		responseStruct, code := MakeMoviesApiCall("imdb12345", t, engine, nil)
 		assertValidInput(t, responseStruct, "", "")
 		assert.Equal(t, http.StatusOK, code)
 
 	})
 
-	t.Run("service should return http status 400 if whitespaces are passed instead of imdbid", func(t *testing.T) {
-		responseStruct, code := MakeApiCall("    ", t, engine, nil)
+	t.Run("it should return http status 400 if whitespaces are passed instead of imdbid for movie details call", func(t *testing.T) {
+		responseStruct, code := MakeMoviesApiCall("    ", t, engine, nil)
+		assertValidInput(t, responseStruct, "", "")
+		assert.Equal(t, http.StatusBadRequest, code)
+
+	})
+
+	t.Run("it should return http status 400 if invalid imdbid for movie details call", func(t *testing.T) {
+		movieResp := response.MovieResponse{}
+		service.EXPECT().GetMovieDetails("imbd-invalid").Times(1).Return(movieResp, errors.New("Error"))
+		responseStruct, code := MakeMoviesApiCall("imbd-invalid", t, engine, nil)
 		assertValidInput(t, responseStruct, "", "")
 		assert.Equal(t, http.StatusBadRequest, code)
 
 	})
 }
 
-func assertValidInput(t *testing.T, responseStruct dto.MovieRentalResponse, name string, errMessage string) {
+func TestCart(t *testing.T) {
+	engine := gin.Default()
 
-	if len(responseStruct.ErrorMessage) == 0 {
-		for _, movie := range responseStruct.MovieList {
+	ctrl := gomock.NewController(t)
+	service := mock_service.NewMockMovieService(ctrl)
+	handler := NewHandler(service)
 
-			assert.Contains(t, movie.Title, name)
+	engine.GET("/api/movies/cart", handler.AddMoviesToCart)
 
-		}
-	} else {
-		assert.Equal(t, 0, len(responseStruct.MovieList))
-		assert.Equal(t, errMessage, responseStruct.ErrorMessage)
-	}
+	t.Run("it should add movies to cart if user is valid", func(t *testing.T) {
+		// TODO ...
+	})
 }
 
-func MakeApiCall(pathParam string, t *testing.T, engine *gin.Engine, queryParams map[string]interface{}) (dto.MovieRentalResponse, int) {
-	url := CreateUrl(pathParam, queryParams)
+func assertValidInput(t *testing.T, responseStruct response.TruncatedMovieReponse, name string, errMessage string) {
+
+	for _, movie := range responseStruct.Movies {
+
+		assert.Contains(t, movie.Title, name)
+
+	}
+	// } else {
+	// 	assert.Equal(t, 0, len(responseStruct.MovieList))
+	// 	assert.Equal(t, errMessage, responseStruct.ErrorMessage)
+	// }
+}
+
+func MakeCartApiCall(t *testing.T, engine *gin.Engine) (response.TruncatedMovieReponse, int) {
+
+	request, err := http.NewRequest(http.MethodGet, "/api/movies/cart", nil)
+	require.NoError(t, err)
+
+	responseRecoder := httptest.NewRecorder()
+	engine.ServeHTTP(responseRecoder, request)
+
+	var responseStruct response.TruncatedMovieReponse
+	json.NewDecoder(responseRecoder.Body).Decode(&responseStruct)
+	require.NoError(t, err)
+
+	return responseStruct, responseRecoder.Result().StatusCode
+}
+
+func MakeMoviesApiCall(pathParam string, t *testing.T, engine *gin.Engine, queryParams map[string]interface{}) (response.TruncatedMovieReponse, int) {
+	url := CreateMoviesUrl(pathParam, queryParams)
 
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	require.NoError(t, err)
@@ -211,14 +251,14 @@ func MakeApiCall(pathParam string, t *testing.T, engine *gin.Engine, queryParams
 	responseRecoder := httptest.NewRecorder()
 	engine.ServeHTTP(responseRecoder, request)
 
-	var responseStruct dto.MovieRentalResponse
+	var responseStruct response.TruncatedMovieReponse
 	json.NewDecoder(responseRecoder.Body).Decode(&responseStruct)
 	require.NoError(t, err)
 
 	return responseStruct, responseRecoder.Result().StatusCode
 }
 
-func CreateUrl(pathParam string, queryParams map[string]interface{}) string {
+func CreateMoviesUrl(pathParam string, queryParams map[string]interface{}) string {
 	url := "/api/movies/" + pathParam
 	if queryParams != nil {
 		url += "?"

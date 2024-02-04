@@ -14,11 +14,14 @@ type MovieHandler interface {
 	GetMovieList(ctx *gin.Context)
 	GetMoviesFromDb(ctx *gin.Context)
 	GetMovieDetails(ctx *gin.Context)
+	AddMoviesToCart(ctx *gin.Context)
 }
 
 type movieHandler struct {
 	service service.MovieService
 }
+
+
 
 func NewHandler(service service.MovieService) MovieHandler {
 	return &movieHandler{
@@ -60,14 +63,11 @@ func (mh movieHandler) GetMoviesFromDb(ctx *gin.Context) {
 	var moviesRequest request.MoviesRequest
 	ctx.ShouldBindQuery(&moviesRequest)
 
-	movies := mh.service.GetMoviesFromDb(&moviesRequest)
-	ctx.JSON(200, gin.H{
-		"movies": movies,
-	})
+	truncatedMovieResponse := mh.service.GetMoviesFromDb(&moviesRequest)
+	ctx.JSON(200, truncatedMovieResponse)
 }
 
 func (mh movieHandler) GetMovieDetails(ctx *gin.Context) {
-	// get imdbid
 	imdbid := ctx.Param("imdbid")
 	if strings.TrimSpace(imdbid) == "" {
 		ctx.JSON(400, response.ErrorResponse{
@@ -78,9 +78,20 @@ func (mh movieHandler) GetMovieDetails(ctx *gin.Context) {
 		return
 	}
 
-	movie := mh.service.GetMovieDetails(imdbid)
-	ctx.JSON(200, gin.H{
-		"movie_detail": movie,
-	})
+	movieReponse, err := mh.service.GetMovieDetails(imdbid)
+	if err != nil {
+		ctx.JSON(400, response.ErrorResponse{
+			Status:  "error",
+			Message: err.Error(),
+			Code:    "400",
+		})
+		return
+	}
+	ctx.JSON(200, movieReponse)
 
+}
+
+// AddMoviesToCart implements MovieHandler.
+func (*movieHandler) AddMoviesToCart(ctx *gin.Context){
+	panic("unimplemented")
 }

@@ -13,7 +13,7 @@ import (
 type MovieService interface {
 	GetMovies(movieName string) ([]dto.Movie, error)
 	GetMoviesFromDb(*request.MoviesRequest) response.TruncatedMovieReponse
-	GetMovieDetails(imdbid string) response.MovieResponse
+	GetMovieDetails(imdbid string) (response.MovieResponse, error)
 }
 
 type movieService struct {
@@ -32,13 +32,14 @@ func (ms *movieService) GetMovies(movieName string) ([]dto.Movie, error) {
 }
 
 // GetMovieDetails implements MovieService.
-func (ms *movieService) GetMovieDetails(imdbid string) response.MovieResponse {
+func (ms *movieService) GetMovieDetails(imdbid string) (response.MovieResponse, error) {
 	movie := ms.repository.GetMovie(imdbid)
+	if movie.Id == 0 {
+		return response.MovieResponse{}, errors.New("no movies found with the given imdbid")
+	}
 	movie.Ratings = ms.repository.GetRatingsFor(movie.Id)
-	movieResponse := response.MovieResponse{Movie: movie}
-	return movieResponse
+	return response.MovieResponse{Movie: movie}, nil
 }
-
 
 func (ms *movieService) GetMoviesFromDb(movieRequest *request.MoviesRequest) response.TruncatedMovieReponse {
 	var truncatedMovies = make([]response.TruncatedMovie, 0)

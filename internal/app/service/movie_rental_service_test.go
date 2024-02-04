@@ -9,6 +9,7 @@ import (
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/repository/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetMoviesFromDb(t *testing.T) {
@@ -57,6 +58,8 @@ func TestGetMoviesFromDb(t *testing.T) {
 	})
 
 
+
+
 	t.Run("it should return all movies from db", func(t *testing.T) {
 		movieTestData := []dto.Movie{
 			{Id: 1, Title: "batman"},
@@ -84,14 +87,8 @@ func TestGetMoviesFromDb(t *testing.T) {
 			},
 		}
 
-		// ratingsTestData1 := []dto.Rating{
-		// 	{Id: 2, Source: "Rotten Tomatoes", Value: "85%"},
-		// }
-
 		request := &request.MoviesRequest{Genre: "Fantasy", Actors: "Robert"}
 		repository.EXPECT().GetMovies(request).Times(1).Return(movieTestData)
-		// repository.EXPECT().GetRatingsFor(gomock.Any()).Times(1).
-		// 	Return(ratingsTestData1)
 
 		truncatedMovieReponse := service.GetMoviesFromDb(request)
 
@@ -128,12 +125,21 @@ func TestGetMovieDetails(t *testing.T) {
 		repository.EXPECT().GetMovie("1234").Times(1).Return(testMovieData)
 		repository.EXPECT().GetRatingsFor(1).Times(1).Return(ratingsTestData)
 
-		movieReponse := service.GetMovieDetails("1234")
+		movieReponse, err := service.GetMovieDetails("1234")
+		require.NoError(t, err)
 
 		assert.Equal(t, "Batman returns", movieReponse.Movie.Title)
 		assert.Equal(t, "2022", movieReponse.Movie.Year)
 		assert.Equal(t, "Rotten Tomatoes", movieReponse.Movie.Ratings[0].Source)
 		assert.Equal(t, "85%", movieReponse.Movie.Ratings[0].Value)
 
+	})
+
+	t.Run("it should return error response with invalid imdbid", func(t *testing.T) {
+		repository.EXPECT().GetMovie("1234-invalid").Times(1).Return(dto.Movie{})
+
+		_, err := service.GetMovieDetails("1234-invalid")
+
+		assert.Equal(t, "no movies found with the given imdbid", err.Error())
 	})
 }
