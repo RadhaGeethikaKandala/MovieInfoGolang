@@ -9,9 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func init() {
-	config.LoadEnvVariables(".env")
-}
 
 func main() {
 

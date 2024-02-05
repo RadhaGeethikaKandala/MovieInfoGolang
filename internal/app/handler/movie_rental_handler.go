@@ -11,7 +11,6 @@ import (
 
 type MovieHandler interface {
 	SayHello(ctx *gin.Context)
-	GetMovieList(ctx *gin.Context)
 	GetMoviesFromDb(ctx *gin.Context)
 	GetMovieDetails(ctx *gin.Context)
 	AddMovieToCart(ctx *gin.Context)
@@ -31,32 +30,6 @@ func NewHandler(service service.MovieService) MovieHandler {
 
 func (mh movieHandler) SayHello(ctx *gin.Context) {
 	ctx.String(200, "hello world!")
-}
-
-func (mh movieHandler) GetMovieList(ctx *gin.Context) {
-
-	movieName := ctx.Param("name")
-
-	if strings.TrimSpace(movieName) == "" {
-		ctx.JSON(400, gin.H{
-			"movieList":    nil,
-			"errorMessage": "name cannot be empty",
-		})
-		return
-	}
-
-	movieList, err := mh.service.GetMovies(movieName)
-
-	var errorMessage string
-	if err != nil {
-		errorMessage = err.Error()
-	}
-
-	ctx.JSON(200, gin.H{
-		"movieList":    movieList,
-		"errorMessage": errorMessage,
-	})
-
 }
 
 func (mh movieHandler) GetMoviesFromDb(ctx *gin.Context) {
@@ -91,7 +64,6 @@ func (mh movieHandler) GetMovieDetails(ctx *gin.Context) {
 
 }
 
-// AddMoviesToCart implements MovieHandler.
 func (mh *movieHandler) AddMovieToCart(ctx *gin.Context){
 	var request request.AddToCartRequest
 	err:=ctx.ShouldBindJSON(&request)

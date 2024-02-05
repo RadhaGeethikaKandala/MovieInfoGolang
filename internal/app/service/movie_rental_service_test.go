@@ -3,7 +3,6 @@ package service
 import (
 	"testing"
 
-	mock_client "github.com/RadhaGeethikaKandala/MovieRental/internal/app/client/mocks"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/request"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/repository/mocks"
@@ -16,48 +15,7 @@ func TestGetMoviesFromDb(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	repository := mock_repository.NewMockRepository(ctrl)
-	client := mock_client.NewMockOmdbClient(ctrl)
-	service := NewMovieService(client, repository)
-
-	t.Run("it should return movie list", func(t *testing.T) {
-		movieName := "batman"
-		movieList := []dto.Movie{
-			{
-				Title: "batman",
-			},
-			{
-				Title: "batman returns",
-			},
-		}
-
-		var omdbResponse = dto.OmdbResponse{
-			Search: movieList,
-		}
-
-		client.EXPECT().GetMovieList(movieName).Times(1).Return(omdbResponse)
-		movies, _ := service.GetMovies(movieName)
-
-		assert.Equal(t, 2, len(movies))
-		assert.Equal(t, movieName, movies[0].Title)
-		assert.Equal(t, movieName+" returns", movies[1].Title)
-	})
-
-	t.Run("it should return error if movie name is not found", func(t *testing.T) {
-		movieName := "xyz"
-		var omdbResponse = dto.OmdbResponse{
-			Response: "False",
-			Error:    "Movie not found!",
-		}
-
-		client.EXPECT().GetMovieList(movieName).Times(1).Return(omdbResponse)
-
-		movies, err := service.GetMovies(movieName)
-
-		assert.Equal(t, 0, len(movies))
-		assert.Equal(t, "Movie not found!", err.Error())
-	})
-
-
+	service := NewMovieService(repository)
 
 
 	t.Run("it should return all movies from db", func(t *testing.T) {
@@ -104,8 +62,7 @@ func TestGetMoviesFromDb(t *testing.T) {
 func TestGetMovieDetails(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	repository := mock_repository.NewMockRepository(ctrl)
-	client := mock_client.NewMockOmdbClient(ctrl)
-	service := NewMovieService(client, repository)
+	service := NewMovieService(repository)
 
 	t.Run("it should get the entire movie details with valid imdbid", func(t *testing.T) {
 		testMovieData := dto.Movie{
@@ -149,8 +106,7 @@ func TestAddMovieToCart(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	repository := mock_repository.NewMockRepository(ctrl)
-	client := mock_client.NewMockOmdbClient(ctrl)
-	service := NewMovieService(client, repository)
+	service := NewMovieService(repository)
 
 	t.Run("it should not throw error if movie successfully added and customer id/movie id is valid ", func(t *testing.T) {
 		request := request.AddToCartRequest{
@@ -200,7 +156,7 @@ func TestAddMovieToCart(t *testing.T) {
 			ImdbId: "1",
 		}
 		movie := dto.Movie{}
-		
+
 		repository.EXPECT().GetMovie(request.ImdbId).Times(1).Return(movie)
 
 		err := service.AddMovieToCart(&request)
