@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"regexp"
 	"testing"
@@ -9,6 +10,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/request"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func NewMock() (*sql.DB, sqlmock.Sqlmock) {
@@ -80,24 +82,38 @@ func TestGetMovies(t *testing.T) {
 
 func TestGetMovie(t *testing.T) {
 	db, mock := NewMock()
-
 	repository := NewRepository(db)
-	row := sqlmock.NewRows([]string{"id", "title", "year", "rated", "released", "runtime", "genre", "director",
+
+	t.Run("it should return movie when imdb is valid", func(t *testing.T) {
+		row := sqlmock.NewRows([]string{"id", "title", "year", "rated", "released", "runtime", "genre", "director",
 			"writer", "actors", "plot", "language", "country",
 			"awards", "poster", "metascore", "imdbrating", "imdbvotes", "imdbid",
 			"type", "dvd", "boxoffice", "production", "website", "response"}).
 			AddRow("1", "Batman Begins", "2005", "PG-13", "15 Jun 2005", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
 
-	queryString := "SELECT * FROM movies WHERE imdbid=$1"
-	mock.ExpectQuery(regexp.QuoteMeta(queryString)).WillReturnRows(row)
+		queryString := "SELECT * FROM movies WHERE imdbid=$1"
+		mock.ExpectQuery(regexp.QuoteMeta(queryString)).WillReturnRows(row)
 
-	movie := repository.GetMovie("1234")
+		movie := repository.GetMovie("1234")
 
-	assert.Equal(t, "Batman Begins", movie.Title)
-	assert.Equal(t, "2005", movie.Year)
-	assert.Equal(t, "PG-13", movie.Rated)
-	assert.Equal(t, "15 Jun 2005", movie.Released)
+		assert.Equal(t, "Batman Begins", movie.Title)
+		assert.Equal(t, "2005", movie.Year)
+		assert.Equal(t, "PG-13", movie.Rated)
+		assert.Equal(t, "15 Jun 2005", movie.Released)
+	})
 
+	t.Run("it should return empty movie when imdb is invalid", func(t *testing.T) {
+		queryString := "SELECT * FROM movies WHERE imdbid=$1"
+		mock.ExpectQuery(regexp.QuoteMeta(queryString)).WillReturnError(sql.ErrNoRows)
+
+		movie := repository.GetMovie("1234")
+
+		assert.Equal(t, "", movie.Title)
+		assert.Equal(t, "", movie.Year)
+		assert.Equal(t, "", movie.Rated)
+		assert.Equal(t, "", movie.Released)
+		assert.Equal(t, 0, movie.Id)
+	})
 }
 
 func TestGetRatingsForMovies(t *testing.T) {
@@ -122,4 +138,62 @@ func TestGetRatingsForMovies(t *testing.T) {
 	assert.Equal(t, "8.2/10", ratings[0].Value)
 	assert.Equal(t, "85%", ratings[1].Value)
 	assert.Equal(t, "70/100", ratings[2].Value)
+}
+
+func TestAddMovieToCart(t *testing.T) {
+
+	db, mock := NewMock()
+
+	repository := NewRepository(db)
+
+	t.Run("should return no of rows affected and no error", func(t *testing.T) {
+
+		mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO cart`)).WithArgs(1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+
+		err := repository.AddMovieToCart(1, 1)
+
+		require.NoError(t, err)
+	})
+
+	t.Run("should return error when DB returns error", func(t *testing.T) {
+
+		mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO cart`)).WithArgs(1, 12).WillReturnError(errors.New("Error while inserting into DB"))
+
+		err := repository.AddMovieToCart(1, 12)
+
+		assert.EqualError(t, err, "Error while inserting into DB")
+	})
+
+}
+
+func TestGetCustomer(t *testing.T) {
+	db, mock := NewMock()
+
+	repository := NewRepository(db)
+
+	t.Run("it should return customers when id is valid", func(t *testing.T) {
+		row := sqlmock.NewRows([]string{"id", "name", "email"}).
+			AddRow("1", "arkaprabha", "arkaprabha@gmail.com")
+
+		queryString := "SELECT * FROM customers WHERE id=$1"
+		mock.ExpectQuery(regexp.QuoteMeta(queryString)).WillReturnRows(row)
+
+		customer := repository.GetCustomer("1")
+
+		assert.Equal(t, "arkaprabha", customer.Name)
+		assert.Equal(t, "arkaprabha@gmail.com", customer.Email)
+	})
+
+	t.Run("it should empty cutsomer when id is not found in db", func(t *testing.T) {
+
+		queryString := "SELECT * FROM customers WHERE id=$1"
+		mock.ExpectQuery(regexp.QuoteMeta(queryString)).WillReturnError(sql.ErrNoRows)
+
+		customer := repository.GetCustomer("1")
+
+		assert.Equal(t, "", customer.Name)
+		assert.Equal(t, "", customer.Email)
+		assert.Equal(t, 0, customer.Id)
+	})
+
 }

@@ -20,8 +20,6 @@ type movieHandler struct {
 	service service.MovieService
 }
 
-
-
 func NewHandler(service service.MovieService) MovieHandler {
 	return &movieHandler{
 		service: service,
@@ -64,9 +62,9 @@ func (mh movieHandler) GetMovieDetails(ctx *gin.Context) {
 
 }
 
-func (mh *movieHandler) AddMovieToCart(ctx *gin.Context){
+func (mh *movieHandler) AddMovieToCart(ctx *gin.Context) {
 	var request request.AddToCartRequest
-	err:=ctx.ShouldBindJSON(&request)
+	err := ctx.ShouldBindJSON(&request)
 	if err != nil {
 		ctx.JSON(400, response.ApiResponse{
 			Status:  "failure",
@@ -86,9 +84,9 @@ func (mh *movieHandler) AddMovieToCart(ctx *gin.Context){
 		return
 	}
 
-	ctx.JSON(200,response.ApiResponse{
-		Status: "success",
+	ctx.JSON(200, response.ApiResponse{
+		Status:  "success",
 		Message: "Added movie to cart successfully",
-		Code: "200",
+		Code:    "200",
 	})
 }

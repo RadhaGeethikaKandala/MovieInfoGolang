@@ -13,13 +13,12 @@ type Repository interface {
 	GetMovies(qmovieRequest *request.MoviesRequest) []dto.Movie
 	GetRatingsFor(movieId int) []dto.Rating
 	GetCustomer(custId string) dto.Customer
-	AddMovieToCart(custId string, imdbId string) error
+	AddMovieToCart(custId int, movieId int) error
 }
 
 type repository struct {
 	db *sql.DB
 }
-
 
 // GetMovie implements Repository.
 func (r *repository) GetMovie(imdbId string) dto.Movie {
@@ -87,13 +86,27 @@ func (r *repository) GetRatingsFor(movieId int) []dto.Rating {
 	return ratings
 }
 
-func (*repository) GetCustomer(custId string) dto.Customer {
-	panic("unimplemented")
+func (r *repository) GetCustomer(custId string) dto.Customer {
+	var customer dto.Customer
+	row := r.db.QueryRow("SELECT * FROM customers WHERE id=$1", custId)
+	err := row.Scan(&customer.Id, &customer.Name, &customer.Email)
+	if err != nil {
+		log.Printf("No customer found with given id %s in customers table", custId)
+	}
+
+	return customer
 }
 
+func (r *repository) AddMovieToCart(custId int, movieId int) error {
+	query := "INSERT INTO cart (customer_id,movie_id) VALUES($1,$2)"
+	_, err := r.db.Exec(query, custId, movieId)
+	if err != nil {
+		log.Printf("[AddMovieToCart] Error while inserting data: %s", err.Error())
+		return err
+	}
+	log.Printf("inserted row into cart table")
+	return nil
 
-func (*repository) AddMovieToCart(custId string, imdbId string) error {
-	panic("unimplemented")
 }
 
 func NewRepository(conn *sql.DB) Repository {

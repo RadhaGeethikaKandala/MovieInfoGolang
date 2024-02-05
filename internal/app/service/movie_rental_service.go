@@ -27,8 +27,6 @@ func (ms *movieService) GetMovieDetails(imdbid string) (response.MovieResponse, 
 	return response.MovieResponse{Movie: movie}, nil
 }
 
-
-
 func (ms *movieService) GetMoviesFromDb(movieRequest *request.MoviesRequest) response.TruncatedMovieReponse {
 	var truncatedMovies = make([]response.TruncatedMovie, 0)
 	movies := ms.repository.GetMovies(movieRequest)
@@ -51,9 +49,9 @@ func (ms *movieService) AddMovieToCart(request *request.AddToCartRequest) error 
 	}
 	customer := ms.repository.GetCustomer(request.UserId)
 	if customer.Id == 0 {
-		return errors.New("no customer found with the given imdbid")
+		return errors.New("no customer found with the given custId")
 	}
-	err := ms.repository.AddMovieToCart(request.UserId, request.ImdbId)
+	err := ms.repository.AddMovieToCart(customer.Id, movie.Id)
 	return err
 }
 

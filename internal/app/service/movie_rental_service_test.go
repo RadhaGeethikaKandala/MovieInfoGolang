@@ -1,11 +1,12 @@
 package service
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/request"
-	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/repository/mocks"
+	mock_repository "github.com/RadhaGeethikaKandala/MovieRental/internal/app/repository/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,7 +17,6 @@ func TestGetMoviesFromDb(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	repository := mock_repository.NewMockRepository(ctrl)
 	service := NewMovieService(repository)
-
 
 	t.Run("it should return all movies from db", func(t *testing.T) {
 		movieTestData := []dto.Movie{
@@ -66,18 +66,17 @@ func TestGetMovieDetails(t *testing.T) {
 
 	t.Run("it should get the entire movie details with valid imdbid", func(t *testing.T) {
 		testMovieData := dto.Movie{
-				Id: 1,
-				Title:  "Batman returns",
-				Genre:  "Fantasy",
-				Actors: "Robert",
-				Year: "2022",
-				ImdbID: "1234",
+			Id:     1,
+			Title:  "Batman returns",
+			Genre:  "Fantasy",
+			Actors: "Robert",
+			Year:   "2022",
+			ImdbID: "1234",
 		}
 
 		ratingsTestData := []dto.Rating{
-				{Id: 2, Source: "Rotten Tomatoes", Value: "85%"},
-			}
-
+			{Id: 2, Source: "Rotten Tomatoes", Value: "85%"},
+		}
 
 		repository.EXPECT().GetMovie("1234").Times(1).Return(testMovieData)
 		repository.EXPECT().GetRatingsFor(1).Times(1).Return(ratingsTestData)
@@ -101,7 +100,6 @@ func TestGetMovieDetails(t *testing.T) {
 	})
 }
 
-
 func TestAddMovieToCart(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
@@ -114,17 +112,17 @@ func TestAddMovieToCart(t *testing.T) {
 			ImdbId: "1",
 		}
 		movie := dto.Movie{
-			Id: 1,
+			Id:    1,
 			Title: "movie title",
 		}
 		customer := dto.Customer{
-			Id: 2,
-			Name: "Rahul",
+			Id:    2,
+			Name:  "Rahul",
 			Email: "rahul@gmail.com",
 		}
 		repository.EXPECT().GetMovie(request.ImdbId).Times(1).Return(movie)
 		repository.EXPECT().GetCustomer(request.UserId).Times(1).Return(customer)
-		repository.EXPECT().AddMovieToCart(request.UserId,  request.ImdbId).Times(1).Return(nil)
+		repository.EXPECT().AddMovieToCart(customer.Id, movie.Id).Times(1).Return(nil)
 
 		err := service.AddMovieToCart(&request)
 		require.NoError(t, err)
@@ -136,7 +134,7 @@ func TestAddMovieToCart(t *testing.T) {
 			ImdbId: "1",
 		}
 		movie := dto.Movie{
-			Id: 1,
+			Id:    1,
 			Title: "movie title",
 		}
 		customer := dto.Customer{}
@@ -147,7 +145,7 @@ func TestAddMovieToCart(t *testing.T) {
 		err := service.AddMovieToCart(&request)
 		require.Error(t, err)
 
-		assert.Equal(t, "no customer found with the given imdbid", err.Error())
+		assert.Equal(t, "no customer found with the given custId", err.Error())
 	})
 
 	t.Run("it should throw error if movie id is invalid ", func(t *testing.T) {
@@ -164,4 +162,29 @@ func TestAddMovieToCart(t *testing.T) {
 
 		assert.Equal(t, "no movie found with the given imdbid", err.Error())
 	})
+
+	t.Run("it should throw error while inserting into cart", func(t *testing.T) {
+		request := request.AddToCartRequest{
+			UserId: "1",
+			ImdbId: "1",
+		}
+		movie := dto.Movie{
+			Id:    1,
+			Title: "movie title",
+		}
+		customer := dto.Customer{
+			Id:    2,
+			Name:  "Rahul",
+			Email: "rahul@gmail.com",
+		}
+
+		repository.EXPECT().GetMovie(request.ImdbId).Times(1).Return(movie)
+		repository.EXPECT().GetCustomer(request.UserId).Times(1).Return(customer)
+		repository.EXPECT().AddMovieToCart(customer.Id, movie.Id).Times(1).Return(errors.New("Error while inserting into cart table"))
+
+		err := service.AddMovieToCart(&request)
+		assert.Error(t, err, "Error while inserting into cart table")
+
+	})
+
 }
