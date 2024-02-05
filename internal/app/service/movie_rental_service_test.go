@@ -20,8 +20,8 @@ func TestGetMoviesFromDb(t *testing.T) {
 
 	t.Run("it should return all movies from db", func(t *testing.T) {
 		movieTestData := []dto.Movie{
-			{Id: 1, Title: "batman"},
-			{Id: 2, Title: "batman returns"},
+			{Id: 1, Title: "batman", ImdbID: "tt24876", Poster: "http://poster1"},
+			{Id: 2, Title: "batman returns", ImdbID: "tf34r77", Poster: "http://poster2"},
 		}
 
 		request := &request.MoviesRequest{}
@@ -32,6 +32,8 @@ func TestGetMoviesFromDb(t *testing.T) {
 		assert.Equal(t, 2, len(truncatedMovieReponse.Movies))
 		assert.Equal(t, "batman", truncatedMovieReponse.Movies[0].Title)
 		assert.Equal(t, "batman returns", truncatedMovieReponse.Movies[1].Title)
+		assert.Equal(t, "tf34r77", truncatedMovieReponse.Movies[1].ImdbId)
+		assert.Equal(t, "http://poster2", truncatedMovieReponse.Movies[1].Poster)
 
 	})
 

@@ -35,7 +35,9 @@ func (ms *movieService) GetMoviesFromDb(movieRequest *request.MoviesRequest) res
 		truncatedMovie := response.TruncatedMovie{
 			Title: movie.Title, Year: movie.Year,
 			Rated: movie.Rated, Actors: movie.Actors,
-			Genre: movie.Genre,
+			Genre:  movie.Genre,
+			Poster: movie.Poster,
+			ImdbId: movie.ImdbID,
 		}
 		truncatedMovies = append(truncatedMovies, truncatedMovie)
 	}
