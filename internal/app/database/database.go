@@ -12,10 +12,12 @@ import (
 	_ "github.com/lib/pq"
 )
 
+const postgresDatasource = "postgres://%s:%s@%s:%s/%s?sslmode=%s"
+
 var (
 	databaseConf = config.ReadConfig().Database
-	dataSource = fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+	dataSource   = fmt.Sprintf(
+		postgresDatasource,
 		databaseConf.Username,
 		databaseConf.Password,
 		databaseConf.Host,
@@ -25,7 +27,7 @@ var (
 	)
 )
 
-func CreateDatabaseConn() *sql.DB{
+func CreateDatabaseConn() *sql.DB {
 	dbConn, err := sql.Open("postgres", dataSource)
 	errString := "Unable to open a connection to database, error: %s"
 	if err != nil {
@@ -48,6 +50,5 @@ func RunDatabaseMigrations() {
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Fatal(err)
 	}
-
 
 }
