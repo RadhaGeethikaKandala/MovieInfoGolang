@@ -164,6 +164,15 @@ func TestAddMovieToCart(t *testing.T) {
 		assert.EqualError(t, err, "Error while inserting into DB")
 	})
 
+	t.Run("should return movie already added to cart error when DB returns unique primary key violation error", func(t *testing.T) {
+
+		mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO cart`)).WithArgs(1, 12).WillReturnError(errors.New(`duplicate key value violates unique constraint "pk_cart"`))
+
+		err := repository.AddMovieToCart(1, 12)
+
+		assert.EqualError(t, err, "movie already added to cart")
+	})
+
 }
 
 func TestGetCustomer(t *testing.T) {

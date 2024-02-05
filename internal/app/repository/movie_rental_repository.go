@@ -2,7 +2,9 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"log"
+	"strings"
 
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto"
 	"github.com/RadhaGeethikaKandala/MovieRental/internal/app/dto/request"
@@ -102,6 +104,16 @@ func (r *repository) AddMovieToCart(custId int, movieId int) error {
 	_, err := r.db.Exec(query, custId, movieId)
 	if err != nil {
 		log.Printf("[AddMovieToCart] Error while inserting data: %s", err.Error())
+
+		// var e *pgconn.PgError
+		// if errors.As(err, &e) && e.Code == pgerrcode.UniqueViolation {
+		// 	return errors.New("movie already added to cart")
+		// }
+
+		if strings.Contains(err.Error(), `unique constraint "pk_cart"`) {
+			return errors.New("movie already added to cart")
+		}
+
 		return err
 	}
 	log.Printf("inserted row into cart table")
