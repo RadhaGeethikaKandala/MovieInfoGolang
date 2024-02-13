@@ -13,9 +13,10 @@ import (
 )
 
 const postgresDatasource = "postgres://%s:%s@%s:%s/%s?sslmode=%s"
+const configFileRelativePath = "./internal/app/config"
 
 var (
-	databaseConf = config.ReadConfig().Database
+	databaseConf = config.ReadConfig(configFileRelativePath).Database
 	dataSource   = fmt.Sprintf(
 		postgresDatasource,
 		databaseConf.Username,

@@ -10,3 +10,11 @@ database:
   host: 127.0.0.1
   port: 5432
   sslmode: disable
+
+databasetest:
+  username: movierentaltest
+  password: movierentaltest
+  dbname: movie_rentaltest
+  host: 192.168.106.2
+  port: 5432
+  sslmode: disable

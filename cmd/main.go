@@ -9,11 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
 func main() {
 
+	const configFileRelativePath = "./internal/app/config"
 	// Get Server Configuration
-	serverConf := config.ReadConfig().Server
+	serverConf := config.ReadConfig(configFileRelativePath).Server
 	host := serverConf.Host
 	port := serverConf.Port
 

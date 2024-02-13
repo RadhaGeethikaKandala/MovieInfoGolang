@@ -7,8 +7,9 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Database DBConfig
+	Server       ServerConfig
+	Database     DBConfig
+	DatabaseTest DBConfig
 }
 type ServerConfig struct {
 	Host string
@@ -24,12 +25,11 @@ type DBConfig struct {
 }
 
 const (
-	configPath = "./internal/app/config"
 	configName = "config"
 	configType = "yaml"
 )
 
-func ReadConfig() *Config {
+func ReadConfig(configPath string) *Config {
 	var config = &Config{}
 	viper.AddConfigPath(configPath)
 	viper.SetConfigName(configName)
