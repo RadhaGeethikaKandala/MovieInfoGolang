@@ -1,5 +1,5 @@
-DROP TABLE moviesratings;
-DROP TABLE ratings;
-DROP TABLE movies;
+DROP TABLE IF EXISTS moviesratings;
+DROP TABLE IF EXISTS ratings;
+DROP TABLE IF EXISTS movies;
 
 
