@@ -25,6 +25,7 @@ var (
 		databaseConf.Dbname,
 		databaseConf.Sslmode,
 	)
+	
 )
 
 func CreateDatabaseConn() *sql.DB {
