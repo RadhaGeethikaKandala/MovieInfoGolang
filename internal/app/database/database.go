@@ -39,7 +39,7 @@ func CreateDatabaseConn() *sql.DB {
 	}
 
 
-	
+
 	return dbConn
 }
 
