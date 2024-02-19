@@ -21,6 +21,4 @@ func Router(engine *gin.Engine) {
 		movieRentalApiGroup.GET("/:imdbid", handler.GetMovieDetails)
 		movieRentalApiGroup.POST("/cart", handler.AddMovieToCart)
 	}
-
-	
 }
