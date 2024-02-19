@@ -36,7 +36,6 @@ func CreateDatabaseConn() *sql.DB {
 	if err := dbConn.Ping(); err != nil {
 		log.Fatalf(errString, err.Error())
 	}
-
 	return dbConn
 }
 
