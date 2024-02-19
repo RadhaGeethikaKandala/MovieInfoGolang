@@ -38,6 +38,7 @@ func CreateDatabaseConn() *sql.DB {
 		log.Fatalf(errString, err.Error())
 	}
 
+
 	
 	return dbConn
 }
